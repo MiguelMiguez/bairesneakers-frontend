@@ -1,0 +1,8 @@
+// ===========================================
+// TYPES - BARREL EXPORT
+// ===========================================
+
+export * from './product.types';
+export * from './user.types';
+export * from './order.types';
+export * from './api.types';
