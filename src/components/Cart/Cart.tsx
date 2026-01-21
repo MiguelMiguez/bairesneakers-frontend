@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
 import { useCartStore, useCartSubtotal } from "@/store";
 import { ConfirmDialog } from "../Modal";
@@ -15,6 +15,23 @@ export function Cart({ isOpen, onClose }: CartProps) {
   const { items, removeItem, updateQuantity, clearCart } = useCartStore();
   const subtotal = useCartSubtotal();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true);
+      setIsClosing(false);
+    }
+  }, [isOpen]);
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setShouldRender(false);
+      onClose();
+    }, 300);
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("es-AR", {
@@ -39,21 +56,29 @@ export function Cart({ isOpen, onClose }: CartProps) {
   };
 
   const handleCheckout = () => {
-    onClose();
-    window.location.href = "/checkout";
+    handleClose();
+    setTimeout(() => {
+      window.location.href = "/checkout";
+    }, 300);
   };
 
-  if (!isOpen) return null;
+  if (!shouldRender) return null;
 
   return (
     <>
-      <div className={styles.overlay} onClick={onClose}>
-        <aside className={styles.cart} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={`${styles.overlay} ${isClosing ? styles.overlayClosing : ""}`}
+        onClick={handleClose}
+      >
+        <aside
+          className={`${styles.cart} ${isClosing ? styles.cartClosing : ""}`}
+          onClick={(e) => e.stopPropagation()}
+        >
           <header className={styles.header}>
             <h2>Tu Carrito</h2>
             <button
               className={styles.closeButton}
-              onClick={onClose}
+              onClick={handleClose}
               aria-label="Cerrar"
             >
               <X size={20} />

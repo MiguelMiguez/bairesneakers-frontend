@@ -1,0 +1,33 @@
+/* ===========================================
+   STYLES - MARQUEE COMPONENT
+   =========================================== */
+
+.marquee {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  animation: scroll linear infinite;
+}
+
+.pauseOnHover:hover .track {
+  animation-play-state: paused;
+}
+
+.content {
+  display: flex;
+  flex-shrink: 0;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}

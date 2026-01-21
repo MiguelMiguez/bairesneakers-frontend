@@ -20,6 +20,7 @@ export { StatsCard, StatsGrid } from "./StatsCard";
 export type { StatCardData } from "./StatsCard";
 export { DataTable } from "./DataTable";
 export type { Column } from "./DataTable";
+export { Marquee } from "./Marquee";
 
 // Filters
 export {

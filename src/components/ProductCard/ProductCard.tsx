@@ -62,18 +62,20 @@ export function ProductCard({ product, onViewDetails }: ProductCardProps) {
         {/* Size badges - visual only, no interaction */}
         <div className={styles.sizes}>
           {availableSizes.length > 0 ? (
-            availableSizes.slice(0, 6).map((size) => (
-              <span key={size} className={styles.sizeBadge}>
-                {size}
-              </span>
-            ))
+            <>
+              {availableSizes.slice(0, 5).map((size) => (
+                <span key={size} className={styles.sizeBadge}>
+                  {size}
+                </span>
+              ))}
+              {availableSizes.length > 5 && (
+                <span className={styles.moreSizes}>
+                  +{availableSizes.length - 5}
+                </span>
+              )}
+            </>
           ) : (
             <span className={styles.noStock}>Sin stock</span>
-          )}
-          {availableSizes.length > 6 && (
-            <span className={styles.moreSizes}>
-              +{availableSizes.length - 6}
-            </span>
           )}
         </div>
 

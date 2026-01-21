@@ -117,13 +117,14 @@
   text-decoration: line-through;
 }
 
-/* Size badges - visual only */
+/* Size badges - visual only, single row */
 .sizes {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 6px;
   margin-bottom: 16px;
-  min-height: 32px;
+  height: 28px;
+  overflow: hidden;
 }
 
 .sizeBadge {
@@ -139,6 +140,7 @@
   font-size: 0.7rem;
   font-weight: 500;
   color: #666;
+  flex-shrink: 0;
 }
 
 .moreSizes {
@@ -153,12 +155,16 @@
   font-size: 0.7rem;
   font-weight: 600;
   color: #ffffff;
+  flex-shrink: 0;
 }
 
 .noStock {
   font-size: 0.8rem;
   color: #999999;
   font-style: italic;
+  display: flex;
+  align-items: center;
+  height: 28px;
 }
 
 /* View button - styled like "add to cart" */
@@ -183,4 +189,88 @@
 .viewButton:disabled {
   background: #cccccc;
   cursor: not-allowed;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .card {
+    border-radius: 8px;
+  }
+
+  .badge {
+    top: 8px;
+    left: 8px;
+    padding: 3px 8px;
+    font-size: 0.65rem;
+  }
+
+  .discount {
+    top: 8px;
+    right: 8px;
+    padding: 3px 6px;
+    font-size: 0.65rem;
+  }
+
+  .content {
+    padding: 10px;
+  }
+
+  .brand {
+    font-size: 0.65rem;
+  }
+
+  .name {
+    font-size: 0.85rem;
+    min-height: 2.2em;
+  }
+
+  .model {
+    font-size: 0.7rem;
+    margin-bottom: 8px;
+  }
+
+  .priceContainer {
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .price {
+    font-size: 0.95rem;
+  }
+
+  .comparePrice {
+    font-size: 0.7rem;
+  }
+
+  .sizes {
+    gap: 4px;
+    margin-bottom: 10px;
+    height: 24px;
+  }
+
+  .sizeBadge {
+    min-width: 26px;
+    height: 24px;
+    padding: 0 5px;
+    font-size: 0.6rem;
+  }
+
+  .moreSizes {
+    min-width: 26px;
+    height: 24px;
+    padding: 0 5px;
+    font-size: 0.6rem;
+  }
+
+  .noStock {
+    font-size: 0.7rem;
+    height: 24px;
+  }
+
+  .viewButton {
+    padding: 10px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+  }
 }

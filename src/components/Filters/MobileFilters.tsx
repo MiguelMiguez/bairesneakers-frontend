@@ -2,6 +2,7 @@
 // FILTERS - MOBILE FILTERS MODAL
 // ===========================================
 
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { SearchFilter } from "./SearchFilter";
 import { ChipFilter } from "./ChipFilter";
@@ -33,7 +34,25 @@ export function MobileFilters({
   activeFiltersCount,
   onClearFilters,
 }: MobileFiltersProps) {
-  if (!isOpen) return null;
+  const [isClosing, setIsClosing] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true);
+      setIsClosing(false);
+    }
+  }, [isOpen]);
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setShouldRender(false);
+      onClose();
+    }, 300);
+  };
+
+  if (!shouldRender) return null;
 
   // Convert brands to options format
   const brandOptions: FilterOption<string>[] = brands.map((brand) => ({
@@ -42,14 +61,21 @@ export function MobileFilters({
   }));
 
   return (
-    <div className={styles.mobileFiltersOverlay} onClick={onClose}>
+    <div
+      className={`${styles.mobileFiltersOverlay} ${isClosing ? styles.overlayClosing : ""}`}
+      onClick={handleClose}
+    >
       <div
-        className={styles.mobileFilters}
+        className={`${styles.mobileFilters} ${isClosing ? styles.panelClosing : ""}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.mobileFiltersHeader}>
           <h3>Filtros</h3>
-          <button onClick={onClose} type="button" aria-label="Cerrar filtros">
+          <button
+            onClick={handleClose}
+            type="button"
+            aria-label="Cerrar filtros"
+          >
             <X size={24} />
           </button>
         </div>
@@ -107,7 +133,7 @@ export function MobileFilters({
           <button
             type="button"
             className={styles.applyFiltersBtn}
-            onClick={onClose}
+            onClick={handleClose}
           >
             Ver {resultsCount} productos
           </button>

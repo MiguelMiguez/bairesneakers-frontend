@@ -11,7 +11,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useFeaturedProducts } from "@/hooks";
-import { ProductCard, ProductCardSkeleton } from "@/components";
+import { ProductCard, ProductCardSkeleton, Marquee } from "@/components";
 import styles from "./HomePage.module.css";
 
 // Datos de promociones bancarias
@@ -60,17 +60,17 @@ export function HomePage() {
 
   return (
     <div className={styles.page}>
-      {/* Promo Banner - Scrolling */}
+      {/* Promo Banner - Using Marquee */}
       <div className={styles.promoBanner}>
-        <div className={styles.promoTrack}>
-          {[...bankPromos, ...bankPromos].map((promo, i) => (
+        <Marquee speed={40}>
+          {bankPromos.map((promo, i) => (
             <div key={i} className={styles.promoItem}>
               <span className={styles.promoBank}>{promo.bank}</span>
               <span className={styles.promoOffer}>{promo.offer}</span>
               <span className={styles.promoDetail}>{promo.detail}</span>
             </div>
           ))}
-        </div>
+        </Marquee>
       </div>
 
       {/* Hero Section */}
@@ -110,13 +110,13 @@ export function HomePage() {
 
       {/* Brands Marquee */}
       <section className={styles.brands}>
-        <div className={styles.brandsTrack}>
-          {[...brands, ...brands].map((brand, i) => (
+        <Marquee speed={30} pauseOnHover>
+          {brands.map((brand, i) => (
             <div key={i} className={styles.brandItem}>
               <img src={brand.logo} alt={brand.name} />
             </div>
           ))}
-        </div>
+        </Marquee>
       </section>
 
       {/* Featured Products */}
