@@ -1,7 +1,3 @@
-// ===========================================
-// COMPONENT - FOOTER
-// ===========================================
-
 import { Link } from "react-router-dom";
 import { Mail, Phone, Instagram, Facebook, Twitter } from "lucide-react";
 import styles from "./Footer.module.css";

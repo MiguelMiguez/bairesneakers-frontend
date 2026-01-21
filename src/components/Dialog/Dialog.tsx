@@ -63,7 +63,6 @@ export function Dialog({
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
 
-  // Focus trap and escape key
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "Escape" && closeOnEscape) {
@@ -98,7 +97,6 @@ export function Dialog({
       document.addEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "hidden";
 
-      // Focus first focusable element
       setTimeout(() => {
         const firstFocusable = dialogRef.current?.querySelector(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',

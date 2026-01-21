@@ -1,14 +1,15 @@
 // ===========================================
-// PAGES - CHECKOUT PAGE
+// PAGES - CHECKOUT PAGE (Refactored)
 // ===========================================
 
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { CreditCard } from "lucide-react";
 import { useCartStore, useCartSubtotal, useAuthStore } from "@/store";
-import { useCheckout } from "@/hooks";
+import { useCheckout, useForm } from "@/hooks";
+import { Form, FormSectionConfig, commonFields } from "@/components/Form";
 import styles from "./CheckoutPage.module.css";
 
-interface ShippingForm {
+interface ShippingFormValues {
   street: string;
   number: string;
   city: string;
@@ -16,6 +17,50 @@ interface ShippingForm {
   zipCode: string;
   phone: string;
 }
+
+const INITIAL_VALUES: ShippingFormValues = {
+  street: "",
+  number: "",
+  city: "",
+  state: "",
+  zipCode: "",
+  phone: "",
+};
+
+const SHIPPING_FORM_SECTIONS: FormSectionConfig[] = [
+  {
+    fields: [
+      commonFields.street({
+        label: "Calle",
+        placeholder: "Nombre de la calle",
+      }),
+    ],
+  },
+  {
+    columns: 2,
+    fields: [
+      {
+        name: "number",
+        label: "Número",
+        type: "text",
+        placeholder: "Número",
+        required: true,
+        autoComplete: "address-line2",
+      },
+      commonFields.city(),
+    ],
+  },
+  {
+    columns: 2,
+    fields: [
+      commonFields.state({ label: "Provincia", placeholder: "Provincia" }),
+      commonFields.zipCode({ label: "Código Postal", placeholder: "C.P." }),
+    ],
+  },
+  {
+    fields: [commonFields.phone()],
+  },
+];
 
 export function CheckoutPage() {
   const navigate = useNavigate();
@@ -25,64 +70,56 @@ export function CheckoutPage() {
   const { createOrder, createPaymentPreference, isLoading, error } =
     useCheckout();
 
-  const [shipping, setShipping] = useState<ShippingForm>({
-    street: "",
-    number: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    phone: "",
+  const {
+    values: shipping,
+    handleChange,
+    handleSubmit,
+  } = useForm<ShippingFormValues>({
+    initialValues: INITIAL_VALUES,
+    onSubmit: async (values) => {
+      if (!isAuthenticated) {
+        navigate("/login", { state: { from: "/checkout" } });
+        return;
+      }
+
+      const orderItems = items.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        size: item.size,
+      }));
+
+      const order = await createOrder({
+        items: orderItems,
+        shippingAddress: {
+          street: values.street,
+          number: values.number,
+          city: values.city,
+          state: values.state,
+          country: "Argentina",
+          zipCode: values.zipCode,
+          isDefault: false,
+        },
+        shippingMethod: "standard",
+      });
+
+      if (order?.id) {
+        const preference = await createPaymentPreference(order.id);
+        if (preference?.initPoint) {
+          clearCart();
+          window.location.href = preference.initPoint;
+        }
+      }
+    },
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setShipping((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!isAuthenticated) {
-      navigate("/login", { state: { from: "/checkout" } });
-      return;
-    }
-
-    const orderItems = items.map((item) => ({
-      productId: item.productId,
-      quantity: item.quantity,
-      size: item.size,
-    }));
-
-    const order = await createOrder({
-      items: orderItems,
-      shippingAddress: {
-        street: shipping.street,
-        number: shipping.number,
-        city: shipping.city,
-        state: shipping.state,
-        country: "Argentina",
-        zipCode: shipping.zipCode,
-        isDefault: false,
-      },
-      shippingMethod: "standard",
-    });
-
-    if (order?.id) {
-      const preference = await createPaymentPreference(order.id);
-      if (preference?.initPoint) {
-        clearCart();
-        window.location.href = preference.initPoint;
-      }
-    }
-  };
-
-  const isFormValid =
+  const isFormValid = Boolean(
     shipping.street &&
     shipping.number &&
     shipping.city &&
     shipping.state &&
     shipping.zipCode &&
-    shipping.phone;
+    shipping.phone,
+  );
 
   if (items.length === 0) {
     return (
@@ -105,7 +142,7 @@ export function CheckoutPage() {
 
         <div className={styles.content}>
           {/* Shipping Form */}
-          <form className={styles.form} onSubmit={handleSubmit}>
+          <div className={styles.formWrapper}>
             <h2>Información de Envío</h2>
 
             {!isAuthenticated && (
@@ -130,96 +167,20 @@ export function CheckoutPage() {
               </div>
             )}
 
-            <div className={styles.formGroup}>
-              <label htmlFor="street">Calle</label>
-              <input
-                type="text"
-                id="street"
-                name="street"
-                value={shipping.street}
-                onChange={handleInputChange}
-                placeholder="Nombre de la calle"
-                required
-              />
-            </div>
-
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label htmlFor="number">Número</label>
-                <input
-                  type="text"
-                  id="number"
-                  name="number"
-                  value={shipping.number}
-                  onChange={handleInputChange}
-                  placeholder="Número"
-                  required
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label htmlFor="city">Ciudad</label>
-                <input
-                  type="text"
-                  id="city"
-                  name="city"
-                  value={shipping.city}
-                  onChange={handleInputChange}
-                  placeholder="Ciudad"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label htmlFor="state">Provincia</label>
-                <input
-                  type="text"
-                  id="state"
-                  name="state"
-                  value={shipping.state}
-                  onChange={handleInputChange}
-                  placeholder="Provincia"
-                  required
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label htmlFor="zipCode">Código Postal</label>
-                <input
-                  type="text"
-                  id="zipCode"
-                  name="zipCode"
-                  value={shipping.zipCode}
-                  onChange={handleInputChange}
-                  placeholder="C.P."
-                  required
-                />
-              </div>
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="phone">Teléfono</label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={shipping.phone}
-                onChange={handleInputChange}
-                placeholder="Tu número de teléfono"
-                required
-              />
-            </div>
+            <Form
+              sections={SHIPPING_FORM_SECTIONS}
+              values={shipping}
+              onChange={handleChange}
+              onSubmit={handleSubmit}
+              submitLabel="Pagar con Mercado Pago"
+              submitIcon={<CreditCard size={18} />}
+              isLoading={isLoading}
+              isValid={isFormValid && Boolean(isAuthenticated)}
+              className={styles.form}
+            />
 
             {error && <div className={styles.error}>{error.message}</div>}
-
-            <button
-              type="submit"
-              className={styles.submitButton}
-              disabled={!isFormValid || isLoading || !isAuthenticated}
-            >
-              {isLoading ? "Procesando..." : "Pagar con Mercado Pago"}
-            </button>
-          </form>
+          </div>
 
           {/* Order Summary */}
           <aside className={styles.summary}>

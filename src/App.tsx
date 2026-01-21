@@ -16,6 +16,7 @@ import {
   LoginPage,
   ContactPage,
   AdminDashboard,
+  ProductFormPage,
 } from "@/pages";
 import "./App.css";
 
@@ -69,10 +70,26 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route
-              path="/admin/*"
+              path="/admin"
               element={
                 <AdminRoute>
                   <AdminDashboard />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/products/new"
+              element={
+                <AdminRoute>
+                  <ProductFormPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/products/:id/edit"
+              element={
+                <AdminRoute>
+                  <ProductFormPage />
                 </AdminRoute>
               }
             />

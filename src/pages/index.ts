@@ -9,3 +9,4 @@ export { CheckoutPage } from "./CheckoutPage";
 export { LoginPage } from "./LoginPage";
 export { ContactPage } from "./ContactPage";
 export { AdminDashboard } from "./AdminDashboard";
+export { ProductFormPage } from "./ProductFormPage";

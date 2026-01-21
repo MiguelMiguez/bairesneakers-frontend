@@ -1,11 +1,8 @@
 // ===========================================
-// COMPONENTS - PRODUCT CARD
+// COMPONENTS - PRODUCT CARD (Refactored)
 // ===========================================
 
-import { useState } from "react";
-import { Product, ShoeSize } from "@/types";
-import { useCartStore } from "@/store";
-import { toast } from "../Toast";
+import { Product } from "@/types";
 import styles from "./ProductCard.module.css";
 
 interface ProductCardProps {
@@ -14,22 +11,9 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onViewDetails }: ProductCardProps) {
-  const [selectedSize, setSelectedSize] = useState<ShoeSize | null>(null);
-  const addItem = useCartStore((state) => state.addItem);
-
   const availableSizes = product.stock
     .filter((s) => s.quantity > 0)
     .map((s) => s.size);
-
-  const handleAddToCart = () => {
-    if (!selectedSize) {
-      toast.error("Por favor selecciona una talla");
-      return;
-    }
-    addItem(product, selectedSize);
-    toast.success(`${product.name} agregado al carrito`);
-    setSelectedSize(null);
-  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("es-AR", {
@@ -38,8 +22,14 @@ export function ProductCard({ product, onViewDetails }: ProductCardProps) {
     }).format(price);
   };
 
+  const handleClick = () => {
+    if (onViewDetails) {
+      onViewDetails(product);
+    }
+  };
+
   return (
-    <article className={styles.card}>
+    <article className={styles.card} onClick={handleClick}>
       <div className={styles.imageContainer}>
         <img
           src={product.thumbnail}
@@ -69,37 +59,35 @@ export function ProductCard({ product, onViewDetails }: ProductCardProps) {
           )}
         </div>
 
+        {/* Size badges - visual only, no interaction */}
         <div className={styles.sizes}>
-          {availableSizes.map((size) => (
-            <button
-              key={size}
-              className={`${styles.sizeButton} ${
-                selectedSize === size ? styles.sizeSelected : ""
-              }`}
-              onClick={() => setSelectedSize(size)}
-            >
-              {size}
-            </button>
-          ))}
-        </div>
-
-        <div className={styles.actions}>
-          <button
-            className={styles.addButton}
-            onClick={handleAddToCart}
-            disabled={availableSizes.length === 0}
-          >
-            {availableSizes.length === 0 ? "Sin stock" : "Agregar al carrito"}
-          </button>
-          {onViewDetails && (
-            <button
-              className={styles.detailsButton}
-              onClick={() => onViewDetails(product)}
-            >
-              Ver más
-            </button>
+          {availableSizes.length > 0 ? (
+            availableSizes.slice(0, 6).map((size) => (
+              <span key={size} className={styles.sizeBadge}>
+                {size}
+              </span>
+            ))
+          ) : (
+            <span className={styles.noStock}>Sin stock</span>
+          )}
+          {availableSizes.length > 6 && (
+            <span className={styles.moreSizes}>
+              +{availableSizes.length - 6}
+            </span>
           )}
         </div>
+
+        {/* Single CTA button */}
+        <button
+          className={styles.viewButton}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleClick();
+          }}
+          disabled={availableSizes.length === 0}
+        >
+          {availableSizes.length === 0 ? "Sin stock" : "Ver producto"}
+        </button>
       </div>
     </article>
   );

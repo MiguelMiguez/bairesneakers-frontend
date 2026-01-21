@@ -1,57 +1,79 @@
 // ===========================================
-// PAGES - CONTACT PAGE
+// PAGES - CONTACT PAGE (Refactored)
 // ===========================================
 
-import { useState } from "react";
-import { Mail, Phone, MapPin, Send, Clock, CheckCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
+import { Form, FormSectionConfig, commonFields } from "@/components/Form";
 import { toast } from "@/components";
+import { useForm } from "@/hooks";
 import styles from "./ContactPage.module.css";
 
-interface ContactForm {
+interface ContactFormValues {
   name: string;
   email: string;
   subject: string;
   message: string;
 }
 
+const INITIAL_VALUES: ContactFormValues = {
+  name: "",
+  email: "",
+  subject: "",
+  message: "",
+};
+
+const SUBJECT_OPTIONS = [
+  { value: "consulta", label: "Consulta general" },
+  { value: "pedido", label: "Sobre mi pedido" },
+  { value: "devolucion", label: "Devoluciones" },
+  { value: "producto", label: "Información de producto" },
+  { value: "otro", label: "Otro" },
+];
+
+const FORM_SECTIONS: FormSectionConfig[] = [
+  {
+    columns: 2,
+    fields: [commonFields.name(), commonFields.email()],
+  },
+  {
+    fields: [
+      {
+        name: "subject",
+        label: "Asunto",
+        type: "select",
+        placeholder: "Selecciona un asunto",
+        options: SUBJECT_OPTIONS,
+        required: true,
+      },
+    ],
+  },
+  {
+    fields: [
+      commonFields.message({
+        label: "Mensaje",
+        placeholder: "¿En qué podemos ayudarte?",
+        rows: 5,
+        required: true,
+      }),
+    ],
+  },
+];
+
 export function ContactPage() {
-  const [form, setForm] = useState<ContactForm>({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const { values, isSubmitting, isSuccess, handleChange, handleSubmit } =
+    useForm<ContactFormValues>({
+      initialValues: INITIAL_VALUES,
+      resetOnSuccess: true,
+      onSubmit: async () => {
+        // Simular envío
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        toast.success("¡Mensaje enviado correctamente!");
+      },
+    });
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simular envío
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    toast.success("¡Mensaje enviado correctamente!");
-
-    // Reset after showing success
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setForm({ name: "", email: "", subject: "", message: "" });
-    }, 3000);
-  };
-
-  const isFormValid = form.name && form.email && form.subject && form.message;
+  const isFormValid = Boolean(
+    values.name && values.email && values.subject && values.message,
+  );
 
   return (
     <div className={styles.page}>
@@ -107,90 +129,22 @@ export function ContactPage() {
           </aside>
 
           {/* Contact Form */}
-          <form className={styles.form} onSubmit={handleSubmit}>
-            {isSubmitted ? (
-              <div className={styles.successMessage}>
-                <CheckCircle size={48} />
-                <h2>¡Mensaje Enviado!</h2>
-                <p>Te responderemos a la brevedad.</p>
-              </div>
-            ) : (
-              <>
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="name">Nombre</label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={form.name}
-                      onChange={handleChange}
-                      placeholder="Tu nombre"
-                      required
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="email">Email</label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={form.email}
-                      onChange={handleChange}
-                      placeholder="tu@email.com"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="subject">Asunto</label>
-                  <select
-                    id="subject"
-                    name="subject"
-                    value={form.subject}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="">Selecciona un asunto</option>
-                    <option value="consulta">Consulta general</option>
-                    <option value="pedido">Sobre mi pedido</option>
-                    <option value="devolucion">Devoluciones</option>
-                    <option value="producto">Información de producto</option>
-                    <option value="otro">Otro</option>
-                  </select>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="message">Mensaje</label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={form.message}
-                    onChange={handleChange}
-                    placeholder="¿En qué podemos ayudarte?"
-                    rows={5}
-                    required
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className={styles.submitButton}
-                  disabled={!isFormValid || isSubmitting}
-                >
-                  {isSubmitting ? (
-                    "Enviando..."
-                  ) : (
-                    <>
-                      <Send size={18} />
-                      Enviar Mensaje
-                    </>
-                  )}
-                </button>
-              </>
-            )}
-          </form>
+          <Form
+            sections={FORM_SECTIONS}
+            values={values}
+            onChange={handleChange}
+            onSubmit={handleSubmit}
+            submitLabel="Enviar Mensaje"
+            submitIcon={<Send size={18} />}
+            isLoading={isSubmitting}
+            isValid={isFormValid}
+            successMessage={
+              isSuccess
+                ? "¡Mensaje Enviado! Te responderemos a la brevedad."
+                : undefined
+            }
+            className={styles.form}
+          />
         </div>
       </div>
     </div>

@@ -1,13 +1,12 @@
-// ===========================================
-// PAGES - ADMIN DASHBOARD
-// ===========================================
-
 import { useState, useEffect } from "react";
-import { useAuthStore } from "../../store";
-import { useAuth } from "../../hooks";
-import { productService } from "../../services";
-import { Product, ProductCategory, ProductGenre, ShoeSize } from "../../types";
-import { toast, ConfirmDialog } from "../../components";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/store";
+import { useAuth } from "@/hooks";
+import { productService } from "@/services";
+import { Product } from "@/types";
+import { toast, ConfirmDialog } from "@/components";
+import { StatsGrid, StatCardData } from "@/components/StatsCard";
+import { DataTable, Column } from "@/components/DataTable";
 import {
   Package,
   TrendingUp,
@@ -15,89 +14,14 @@ import {
   Star,
   LogOut,
   Plus,
-  Search,
   Edit,
   Trash2,
-  Loader2,
-  X,
-  ImagePlus,
   AlertCircle,
 } from "lucide-react";
 import styles from "./AdminDashboard.module.css";
 
-// Product Form Data Type
-interface ProductFormData {
-  name: string;
-  model: string;
-  brand: string;
-  category: ProductCategory;
-  genre: ProductGenre;
-  description: string;
-  price: number;
-  compareAtPrice?: number;
-  thumbnail: string;
-  images: string[];
-  stock: Array<{ size: ShoeSize; quantity: number }>;
-  tags: string[];
-  isActive: boolean;
-  isFeatured: boolean;
-}
-
-const INITIAL_FORM_DATA: ProductFormData = {
-  name: "",
-  model: "",
-  brand: "Nike",
-  category: "sneakers",
-  genre: "unisex",
-  description: "",
-  price: 0,
-  compareAtPrice: undefined,
-  thumbnail: "",
-  images: [],
-  stock: [
-    { size: 35 as ShoeSize, quantity: 0 },
-    { size: 36 as ShoeSize, quantity: 0 },
-    { size: 37 as ShoeSize, quantity: 0 },
-    { size: 38 as ShoeSize, quantity: 0 },
-    { size: 39 as ShoeSize, quantity: 0 },
-    { size: 40 as ShoeSize, quantity: 0 },
-    { size: 41 as ShoeSize, quantity: 0 },
-    { size: 42 as ShoeSize, quantity: 0 },
-    { size: 43 as ShoeSize, quantity: 0 },
-    { size: 44 as ShoeSize, quantity: 0 },
-    { size: 45 as ShoeSize, quantity: 0 },
-    { size: 46 as ShoeSize, quantity: 0 },
-  ],
-  tags: [],
-  isActive: true,
-  isFeatured: false,
-};
-
-const BRANDS = [
-  "Nike",
-  "Adidas",
-  "Puma",
-  "New Balance",
-  "Reebok",
-  "Converse",
-  "Vans",
-  "Jordan",
-];
-const CATEGORIES: ProductCategory[] = [
-  "sneakers",
-  "boots",
-  "sandals",
-  "casual",
-];
-const GENRES: ProductGenre[] = [
-  "masculino",
-  "femenino",
-  "unisex",
-  "niño",
-  "niña",
-];
-
 export function AdminDashboard() {
+  const navigate = useNavigate();
   const { user, isAdmin } = useAuthStore();
   const { logout } = useAuth();
 
@@ -105,16 +29,7 @@ export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"products" | "orders">("products");
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [searchText, setSearchText] = useState("");
-
-  // Form state
-  const [formOpen, setFormOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [formData, setFormData] = useState<ProductFormData>(INITIAL_FORM_DATA);
-  const [tagInput, setTagInput] = useState("");
-  const [newImageUrl, setNewImageUrl] = useState("");
 
   // Delete confirmation
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -124,32 +39,6 @@ export function AdminDashboard() {
   useEffect(() => {
     loadProducts();
   }, []);
-
-  // Populate form when editing
-  useEffect(() => {
-    if (editingProduct) {
-      setFormData({
-        name: editingProduct.name,
-        model: editingProduct.model,
-        brand: editingProduct.brand,
-        category: editingProduct.category,
-        genre: editingProduct.genre,
-        description: editingProduct.description,
-        price: editingProduct.price,
-        compareAtPrice: editingProduct.compareAtPrice,
-        thumbnail: editingProduct.thumbnail,
-        images: editingProduct.images || [],
-        stock: editingProduct.stock,
-        tags: editingProduct.tags || [],
-        isActive: editingProduct.isActive,
-        isFeatured: editingProduct.isFeatured,
-      });
-    } else {
-      setFormData(INITIAL_FORM_DATA);
-    }
-    setTagInput("");
-    setNewImageUrl("");
-  }, [editingProduct, formOpen]);
 
   const loadProducts = async () => {
     try {
@@ -165,131 +54,6 @@ export function AdminDashboard() {
       console.error(err);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleInputChange = (field: keyof ProductFormData, value: unknown) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleStockChange = (size: ShoeSize, quantity: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      stock: prev.stock.map((s) => (s.size === size ? { ...s, quantity } : s)),
-    }));
-  };
-
-  const addTag = () => {
-    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
-      setFormData((prev) => ({
-        ...prev,
-        tags: [...prev.tags, tagInput.trim()],
-      }));
-      setTagInput("");
-    }
-  };
-
-  const removeTag = (tag: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      tags: prev.tags.filter((t) => t !== tag),
-    }));
-  };
-
-  const addImage = () => {
-    if (newImageUrl.trim() && !formData.images.includes(newImageUrl.trim())) {
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, newImageUrl.trim()],
-      }));
-      setNewImageUrl("");
-    }
-  };
-
-  const removeImage = (url: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      images: prev.images.filter((img) => img !== url),
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validaciones requeridas por el backend
-    if (!formData.name) {
-      toast.error("El nombre es requerido");
-      return;
-    }
-    if (!formData.model) {
-      toast.error("El modelo es requerido");
-      return;
-    }
-    if (!formData.brand) {
-      toast.error("La marca es requerida");
-      return;
-    }
-    if (!formData.description) {
-      toast.error("La descripción es requerida");
-      return;
-    }
-    if (!formData.price || formData.price <= 0) {
-      toast.error("El precio debe ser mayor a 0");
-      return;
-    }
-    if (!formData.thumbnail) {
-      toast.error("La imagen principal (thumbnail) es requerida");
-      return;
-    }
-    if (formData.images.length === 0) {
-      toast.error("Debes agregar al menos una imagen");
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-
-      const productData = {
-        sku: editingProduct?.sku || `SKU-${Date.now()}`,
-        name: formData.name,
-        model: formData.model,
-        brand: formData.brand,
-        description: formData.description,
-        category: formData.category,
-        genre: formData.genre,
-        price: formData.price,
-        compareAtPrice: formData.compareAtPrice,
-        currency: "ARS",
-        images: formData.images,
-        thumbnail: formData.thumbnail,
-        stock: formData.stock,
-        isFeatured: formData.isFeatured,
-        tags: formData.tags,
-      };
-
-      if (editingProduct) {
-        const updated = await productService.updateProduct(
-          editingProduct.id,
-          productData,
-        );
-        setProducts((prev) =>
-          prev.map((p) => (p.id === updated.id ? updated : p)),
-        );
-        toast.success("Producto actualizado exitosamente");
-      } else {
-        const newProduct = await productService.createProduct(
-          productData as Parameters<typeof productService.createProduct>[0],
-        );
-        setProducts((prev) => [newProduct, ...prev]);
-        toast.success("Producto creado exitosamente");
-      }
-
-      closeForm();
-    } catch (err: unknown) {
-      const error = err as { message?: string };
-      toast.error(error.message || "Error al guardar producto");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -342,35 +106,168 @@ export function AdminDashboard() {
     }
   };
 
-  const openEditForm = (product: Product) => {
-    setEditingProduct(product);
-    setFormOpen(true);
-  };
-
   const openDeleteConfirm = (product: Product) => {
     setProductToDelete(product);
     setDeleteConfirmOpen(true);
   };
 
-  const closeForm = () => {
-    setFormOpen(false);
-    setEditingProduct(null);
-    setFormData(INITIAL_FORM_DATA);
-  };
+  // Stats data
+  const stats: StatCardData[] = [
+    {
+      id: "total",
+      label: "Productos",
+      value: products.length,
+      icon: <Package size={24} />,
+      color: "#1976d2",
+      bgColor: "#e3f2fd",
+    },
+    {
+      id: "active",
+      label: "Activos",
+      value: products.filter((p) => p.isActive).length,
+      icon: <TrendingUp size={24} />,
+      color: "#388e3c",
+      bgColor: "#e8f5e9",
+    },
+    {
+      id: "stock",
+      label: "Stock Total",
+      value: products.reduce((sum, p) => sum + p.totalStock, 0),
+      icon: <ShoppingCart size={24} />,
+      color: "#f57c00",
+      bgColor: "#fff3e0",
+    },
+    {
+      id: "featured",
+      label: "Destacados",
+      value: products.filter((p) => p.isFeatured).length,
+      icon: <Star size={24} />,
+      color: "#c2185b",
+      bgColor: "#fce4ec",
+    },
+  ];
 
-  // Filtered products
-  const filteredProducts = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      p.model.toLowerCase().includes(searchText.toLowerCase()) ||
-      p.brand.toLowerCase().includes(searchText.toLowerCase()),
+  // Table columns
+  const columns: Column<Product>[] = [
+    {
+      id: "product",
+      label: "Producto",
+      minWidth: 250,
+      sortable: true,
+      getValue: (row) => row.name,
+      render: (row) => (
+        <div className={styles.productCell}>
+          <img
+            src={row.thumbnail}
+            alt={row.name}
+            className={styles.productImage}
+          />
+          <div>
+            <span className={styles.productName}>{row.name}</span>
+            <span className={styles.productModel}>{row.model}</span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "brand",
+      label: "Marca",
+      minWidth: 100,
+      sortable: true,
+      getValue: (row) => row.brand,
+    },
+    {
+      id: "price",
+      label: "Precio",
+      minWidth: 100,
+      sortable: true,
+      getValue: (row) => row.price,
+      render: (row) => `$${row.price.toLocaleString("es-AR")}`,
+    },
+    {
+      id: "totalStock",
+      label: "Stock",
+      minWidth: 80,
+      align: "center",
+      sortable: true,
+      getValue: (row) => row.totalStock,
+      render: (row) => (
+        <span
+          className={`${styles.stockBadge} ${
+            row.totalStock === 0
+              ? styles.outOfStock
+              : row.totalStock < 10
+                ? styles.lowStock
+                : styles.inStock
+          }`}
+        >
+          {row.totalStock}
+        </span>
+      ),
+    },
+    {
+      id: "isActive",
+      label: "Estado",
+      minWidth: 100,
+      align: "center",
+      render: (row) => (
+        <button
+          className={`${styles.statusBtn} ${
+            row.isActive ? styles.active : styles.inactive
+          }`}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleToggleActive(row);
+          }}
+        >
+          {row.isActive ? "Activo" : "Inactivo"}
+        </button>
+      ),
+    },
+    {
+      id: "isFeatured",
+      label: "Destacado",
+      minWidth: 80,
+      align: "center",
+      render: (row) => (
+        <button
+          className={`${styles.featuredBtn} ${
+            row.isFeatured ? styles.featured : ""
+          }`}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleToggleFeatured(row);
+          }}
+        >
+          <Star size={16} fill={row.isFeatured ? "#f59e0b" : "none"} />
+        </button>
+      ),
+    },
+  ];
+
+  // Table actions
+  const tableActions = (row: Product) => (
+    <div className={styles.actions}>
+      <button
+        className={styles.editBtn}
+        onClick={(e) => {
+          e.stopPropagation();
+          navigate(`/admin/products/${row.id}/edit`);
+        }}
+      >
+        <Edit size={16} />
+      </button>
+      <button
+        className={styles.deleteBtn}
+        onClick={(e) => {
+          e.stopPropagation();
+          openDeleteConfirm(row);
+        }}
+      >
+        <Trash2 size={16} />
+      </button>
+    </div>
   );
-
-  // Stats
-  const totalProducts = products.length;
-  const activeProducts = products.filter((p) => p.isActive).length;
-  const totalStock = products.reduce((sum, p) => sum + p.totalStock, 0);
-  const featuredCount = products.filter((p) => p.isFeatured).length;
 
   if (!isAdmin) {
     return (
@@ -399,56 +296,7 @@ export function AdminDashboard() {
       </header>
 
       {/* Stats */}
-      <div className={styles.stats}>
-        <div className={styles.statCard}>
-          <div
-            className={styles.statIcon}
-            style={{ backgroundColor: "#e3f2fd" }}
-          >
-            <Package size={24} color="#1976d2" />
-          </div>
-          <div>
-            <span className={styles.statValue}>{totalProducts}</span>
-            <span className={styles.statLabel}>Productos</span>
-          </div>
-        </div>
-        <div className={styles.statCard}>
-          <div
-            className={styles.statIcon}
-            style={{ backgroundColor: "#e8f5e9" }}
-          >
-            <TrendingUp size={24} color="#388e3c" />
-          </div>
-          <div>
-            <span className={styles.statValue}>{activeProducts}</span>
-            <span className={styles.statLabel}>Activos</span>
-          </div>
-        </div>
-        <div className={styles.statCard}>
-          <div
-            className={styles.statIcon}
-            style={{ backgroundColor: "#fff3e0" }}
-          >
-            <ShoppingCart size={24} color="#f57c00" />
-          </div>
-          <div>
-            <span className={styles.statValue}>{totalStock}</span>
-            <span className={styles.statLabel}>Stock Total</span>
-          </div>
-        </div>
-        <div className={styles.statCard}>
-          <div
-            className={styles.statIcon}
-            style={{ backgroundColor: "#fce4ec" }}
-          >
-            <Star size={24} color="#c2185b" />
-          </div>
-          <div>
-            <span className={styles.statValue}>{featuredCount}</span>
-            <span className={styles.statLabel}>Destacados</span>
-          </div>
-        </div>
-      </div>
+      <StatsGrid stats={stats} className={styles.stats} />
 
       {/* Tabs */}
       <div className={styles.tabs}>
@@ -470,16 +318,11 @@ export function AdminDashboard() {
       {activeTab === "products" && (
         <div className={styles.content}>
           <div className={styles.toolbar}>
-            <div className={styles.searchBox}>
-              <Search size={18} />
-              <input
-                type="text"
-                placeholder="Buscar productos..."
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-            </div>
-            <button onClick={() => setFormOpen(true)} className={styles.addBtn}>
+            <div />
+            <button
+              onClick={() => navigate("/admin/products/new")}
+              className={styles.addBtn}
+            >
               <Plus size={18} />
               Agregar Producto
             </button>
@@ -492,108 +335,18 @@ export function AdminDashboard() {
             </div>
           )}
 
-          {isLoading ? (
-            <div className={styles.loading}>
-              <Loader2 size={32} className={styles.spinner} />
-              <p>Cargando productos...</p>
-            </div>
-          ) : filteredProducts.length === 0 ? (
-            <div className={styles.empty}>
-              <Package size={48} />
-              <p>No se encontraron productos</p>
-            </div>
-          ) : (
-            <div className={styles.tableWrapper}>
-              <div className={styles.tableScrollContainer}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>Producto</th>
-                      <th>Marca</th>
-                      <th>Precio</th>
-                      <th>Stock</th>
-                      <th>Estado</th>
-                      <th>Destacado</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredProducts.map((product) => (
-                      <tr key={product.id}>
-                        <td>
-                          <div className={styles.productCell}>
-                            <img
-                              src={product.thumbnail}
-                              alt={product.name}
-                              className={styles.productImage}
-                            />
-                            <div>
-                              <span className={styles.productName}>
-                                {product.name}
-                              </span>
-                              <span className={styles.productModel}>
-                                {product.model}
-                              </span>
-                            </div>
-                          </div>
-                        </td>
-                        <td>{product.brand}</td>
-                        <td>${product.price.toLocaleString("es-AR")}</td>
-                        <td>
-                          <span
-                            className={`${styles.stockBadge} ${
-                              product.totalStock === 0
-                                ? styles.outOfStock
-                                : product.totalStock < 10
-                                  ? styles.lowStock
-                                  : styles.inStock
-                            }`}
-                          >
-                            {product.totalStock}
-                          </span>
-                        </td>
-                        <td>
-                          <button
-                            className={`${styles.statusBtn} ${product.isActive ? styles.active : styles.inactive}`}
-                            onClick={() => handleToggleActive(product)}
-                          >
-                            {product.isActive ? "Activo" : "Inactivo"}
-                          </button>
-                        </td>
-                        <td>
-                          <button
-                            className={`${styles.featuredBtn} ${product.isFeatured ? styles.featured : ""}`}
-                            onClick={() => handleToggleFeatured(product)}
-                          >
-                            <Star
-                              size={16}
-                              fill={product.isFeatured ? "#f59e0b" : "none"}
-                            />
-                          </button>
-                        </td>
-                        <td>
-                          <div className={styles.actions}>
-                            <button
-                              className={styles.editBtn}
-                              onClick={() => openEditForm(product)}
-                            >
-                              <Edit size={16} />
-                            </button>
-                            <button
-                              className={styles.deleteBtn}
-                              onClick={() => openDeleteConfirm(product)}
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+          <DataTable
+            columns={columns}
+            rows={products}
+            getRowId={(row) => row.id}
+            isLoading={isLoading}
+            searchable
+            searchPlaceholder="Buscar productos..."
+            emptyMessage="No se encontraron productos"
+            emptyIcon={<Package size={48} />}
+            actions={tableActions}
+            onRowClick={(row) => navigate(`/admin/products/${row.id}/edit`)}
+          />
         </div>
       )}
 
@@ -603,318 +356,6 @@ export function AdminDashboard() {
           <div className={styles.empty}>
             <ShoppingCart size={48} />
             <p>No hay pedidos todavía</p>
-          </div>
-        </div>
-      )}
-
-      {/* Product Form Modal */}
-      {formOpen && (
-        <div className={styles.modalOverlay} onClick={closeForm}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h2>{editingProduct ? "Editar Producto" : "Nuevo Producto"}</h2>
-              <button onClick={closeForm} className={styles.closeBtn}>
-                <X size={24} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className={styles.form}>
-              <div className={styles.formGrid}>
-                {/* Basic Info */}
-                <div className={styles.formSection}>
-                  <h3>Información Básica</h3>
-
-                  <div className={styles.formRow}>
-                    <div className={styles.formGroup}>
-                      <label>Nombre *</label>
-                      <input
-                        type="text"
-                        value={formData.name}
-                        onChange={(e) =>
-                          handleInputChange("name", e.target.value)
-                        }
-                        placeholder="Ej: Air Max 90"
-                        required
-                      />
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label>Modelo *</label>
-                      <input
-                        type="text"
-                        value={formData.model}
-                        onChange={(e) =>
-                          handleInputChange("model", e.target.value)
-                        }
-                        placeholder="Ej: AM90-2024"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className={styles.formRow}>
-                    <div className={styles.formGroup}>
-                      <label>Marca</label>
-                      <select
-                        value={formData.brand}
-                        onChange={(e) =>
-                          handleInputChange("brand", e.target.value)
-                        }
-                      >
-                        {BRANDS.map((brand) => (
-                          <option key={brand} value={brand}>
-                            {brand}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label>Categoría</label>
-                      <select
-                        value={formData.category}
-                        onChange={(e) =>
-                          handleInputChange("category", e.target.value)
-                        }
-                      >
-                        {CATEGORIES.map((cat) => (
-                          <option key={cat} value={cat}>
-                            {cat}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label>Género</label>
-                      <select
-                        value={formData.genre}
-                        onChange={(e) =>
-                          handleInputChange("genre", e.target.value)
-                        }
-                      >
-                        {GENRES.map((genre) => (
-                          <option key={genre} value={genre}>
-                            {genre}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label>Descripción</label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) =>
-                        handleInputChange("description", e.target.value)
-                      }
-                      placeholder="Descripción del producto..."
-                      rows={3}
-                    />
-                  </div>
-                </div>
-
-                {/* Pricing */}
-                <div className={styles.formSection}>
-                  <h3>Precio</h3>
-                  <div className={styles.formRow}>
-                    <div className={styles.formGroup}>
-                      <label>Precio *</label>
-                      <input
-                        type="number"
-                        value={formData.price || ""}
-                        onChange={(e) =>
-                          handleInputChange("price", Number(e.target.value))
-                        }
-                        placeholder="0"
-                        min="0"
-                        required
-                      />
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label>Precio Comparativo</label>
-                      <input
-                        type="number"
-                        value={formData.compareAtPrice || ""}
-                        onChange={(e) =>
-                          handleInputChange(
-                            "compareAtPrice",
-                            e.target.value ? Number(e.target.value) : undefined,
-                          )
-                        }
-                        placeholder="Precio anterior (opcional)"
-                        min="0"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Images */}
-                <div className={styles.formSection}>
-                  <h3>Imágenes</h3>
-                  <div className={styles.formGroup}>
-                    <label>Thumbnail (URL) *</label>
-                    <input
-                      type="url"
-                      value={formData.thumbnail}
-                      onChange={(e) =>
-                        handleInputChange("thumbnail", e.target.value)
-                      }
-                      placeholder="https://..."
-                      required
-                    />
-                  </div>
-
-                  {formData.thumbnail && (
-                    <img
-                      src={formData.thumbnail}
-                      alt="Preview"
-                      className={styles.thumbnailPreview}
-                    />
-                  )}
-
-                  <div className={styles.formGroup}>
-                    <label>Imágenes Adicionales</label>
-                    <div className={styles.imageInput}>
-                      <input
-                        type="url"
-                        value={newImageUrl}
-                        onChange={(e) => setNewImageUrl(e.target.value)}
-                        placeholder="URL de imagen adicional"
-                      />
-                      <button
-                        type="button"
-                        onClick={addImage}
-                        className={styles.addImageBtn}
-                      >
-                        <ImagePlus size={18} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {formData.images.length > 0 && (
-                    <div className={styles.imageList}>
-                      {formData.images.map((img, idx) => (
-                        <div key={idx} className={styles.imageItem}>
-                          <img src={img} alt={`Image ${idx + 1}`} />
-                          <button
-                            type="button"
-                            onClick={() => removeImage(img)}
-                          >
-                            <X size={14} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Stock */}
-                <div className={styles.formSection}>
-                  <h3>Stock por Talla</h3>
-                  <div className={styles.stockGrid}>
-                    {formData.stock.map((item) => (
-                      <div key={item.size} className={styles.stockItem}>
-                        <span>{item.size}</span>
-                        <input
-                          type="number"
-                          value={item.quantity}
-                          onChange={(e) =>
-                            handleStockChange(
-                              item.size,
-                              parseInt(e.target.value) || 0,
-                            )
-                          }
-                          min="0"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Tags */}
-                <div className={styles.formSection}>
-                  <h3>Etiquetas</h3>
-                  <div className={styles.tagInput}>
-                    <input
-                      type="text"
-                      value={tagInput}
-                      onChange={(e) => setTagInput(e.target.value)}
-                      onKeyPress={(e) =>
-                        e.key === "Enter" && (e.preventDefault(), addTag())
-                      }
-                      placeholder="Agregar etiqueta..."
-                    />
-                    <button type="button" onClick={addTag}>
-                      Agregar
-                    </button>
-                  </div>
-                  {formData.tags.length > 0 && (
-                    <div className={styles.tags}>
-                      {formData.tags.map((tag) => (
-                        <span key={tag} className={styles.tag}>
-                          {tag}
-                          <button type="button" onClick={() => removeTag(tag)}>
-                            <X size={12} />
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Options */}
-                <div className={styles.formSection}>
-                  <h3>Opciones</h3>
-                  <div className={styles.checkboxGroup}>
-                    <label className={styles.checkbox}>
-                      <input
-                        type="checkbox"
-                        checked={formData.isActive}
-                        onChange={(e) =>
-                          handleInputChange("isActive", e.target.checked)
-                        }
-                      />
-                      <span>Producto Activo</span>
-                    </label>
-                    <label className={styles.checkbox}>
-                      <input
-                        type="checkbox"
-                        checked={formData.isFeatured}
-                        onChange={(e) =>
-                          handleInputChange("isFeatured", e.target.checked)
-                        }
-                      />
-                      <span>Producto Destacado</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div className={styles.formActions}>
-                <button
-                  type="button"
-                  onClick={closeForm}
-                  className={styles.cancelBtn}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className={styles.submitBtn}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 size={18} className={styles.spinner} />
-                      Guardando...
-                    </>
-                  ) : editingProduct ? (
-                    "Actualizar Producto"
-                  ) : (
-                    "Crear Producto"
-                  )}
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}

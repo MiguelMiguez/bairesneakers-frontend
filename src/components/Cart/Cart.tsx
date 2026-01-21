@@ -1,7 +1,3 @@
-// ===========================================
-// COMPONENTS - CART SIDEBAR
-// ===========================================
-
 import { useState } from "react";
 import { X, Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
 import { useCartStore, useCartSubtotal } from "@/store";

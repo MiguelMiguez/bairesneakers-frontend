@@ -1,29 +1,19 @@
-// ===========================================
-// PAGES - PRODUCT DETAIL PAGE
-// ===========================================
-
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Heart,
-  Share2,
-  Truck,
-  RotateCcw,
-  Shield,
-  Star,
-  Minus,
-  Plus,
-  ShoppingBag,
-  Check,
-  ZoomIn,
-  X,
-} from "lucide-react";
+import { Heart, Share2, ShoppingBag, Check } from "lucide-react";
 import { useProduct } from "@/hooks";
 import { useCartStore } from "@/store";
 import { ShoeSize } from "@/types";
-import { toast, DialogConfirm } from "@/components";
+import {
+  toast,
+  DialogConfirm,
+  ImageGallery,
+  SizeSelector,
+  QuantitySelector,
+  ProductFeatures,
+  ProductTags,
+  ProductRating,
+} from "@/components";
 import styles from "./ProductDetailPage.module.css";
 
 export function ProductDetailPage() {
@@ -31,11 +21,8 @@ export function ProductDetailPage() {
   const navigate = useNavigate();
   const { product, isLoading, error } = useProduct(id || "");
   const { addItem, isInCart, getItemQuantity } = useCartStore();
-
   const [selectedSize, setSelectedSize] = useState<ShoeSize | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [mainImageIndex, setMainImageIndex] = useState(0);
-  const [isZoomed, setIsZoomed] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
@@ -44,7 +31,6 @@ export function ProductDetailPage() {
   useEffect(() => {
     setSelectedSize(null);
     setQuantity(1);
-    setMainImageIndex(0);
     setAddedToCart(false);
   }, [id]);
 
@@ -57,12 +43,16 @@ export function ProductDetailPage() {
   // Check if already in cart
   const itemInCart =
     selectedSize && product ? isInCart(product.id, selectedSize) : false;
-
   const cartQuantity =
     selectedSize && product ? getItemQuantity(product.id, selectedSize) : 0;
 
   // Available stock considering cart
   const availableStock = selectedSizeStock - cartQuantity;
+
+  const handleSizeSelect = (size: ShoeSize) => {
+    setSelectedSize(size);
+    setQuantity(1);
+  };
 
   const handleAddToCart = () => {
     if (!product || !selectedSize) {
@@ -90,20 +80,6 @@ export function ProductDetailPage() {
     }
   };
 
-  const handleImageNavigation = (direction: "prev" | "next") => {
-    if (!product) return;
-
-    if (direction === "prev") {
-      setMainImageIndex((prev) =>
-        prev === 0 ? product.images.length - 1 : prev - 1,
-      );
-    } else {
-      setMainImageIndex((prev) =>
-        prev === product.images.length - 1 ? 0 : prev + 1,
-      );
-    }
-  };
-
   const handleShare = async () => {
     if (navigator.share && product) {
       try {
@@ -113,7 +89,6 @@ export function ProductDetailPage() {
           url: window.location.href,
         });
       } catch {
-        // User cancelled or error
         copyToClipboard();
       }
     } else {
@@ -133,20 +108,7 @@ export function ProductDetailPage() {
     );
   };
 
-  // Keyboard navigation for gallery
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isZoomed) {
-        if (e.key === "Escape") setIsZoomed(false);
-        if (e.key === "ArrowLeft") handleImageNavigation("prev");
-        if (e.key === "ArrowRight") handleImageNavigation("next");
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isZoomed, product]);
-
+  // Loading state
   if (isLoading) {
     return (
       <div className={styles.page}>
@@ -172,6 +134,7 @@ export function ProductDetailPage() {
     );
   }
 
+  // Error state
   if (error || !product) {
     return (
       <div className={styles.page}>
@@ -202,65 +165,11 @@ export function ProductDetailPage() {
 
         <div className={styles.content}>
           {/* Gallery Section */}
-          <div className={styles.gallery}>
-            <div className={styles.mainImageWrapper}>
-              {product.images.length > 1 && (
-                <>
-                  <button
-                    className={`${styles.navButton} ${styles.prevButton}`}
-                    onClick={() => handleImageNavigation("prev")}
-                    aria-label="Imagen anterior"
-                  >
-                    <ChevronLeft size={24} />
-                  </button>
-                  <button
-                    className={`${styles.navButton} ${styles.nextButton}`}
-                    onClick={() => handleImageNavigation("next")}
-                    aria-label="Imagen siguiente"
-                  >
-                    <ChevronRight size={24} />
-                  </button>
-                </>
-              )}
-
-              <button
-                className={styles.zoomButton}
-                onClick={() => setIsZoomed(true)}
-                aria-label="Ver imagen en grande"
-              >
-                <ZoomIn size={20} />
-              </button>
-
-              <div className={styles.mainImage}>
-                <img
-                  src={product.images[mainImageIndex]}
-                  alt={`${product.name} - Imagen ${mainImageIndex + 1}`}
-                />
-              </div>
-
-              {product.isFeatured && (
-                <span className={styles.featuredBadge}>Destacado</span>
-              )}
-            </div>
-
-            {product.images.length > 1 && (
-              <div className={styles.thumbnails}>
-                {product.images.map((img, index) => (
-                  <button
-                    key={index}
-                    className={`${styles.thumbnail} ${mainImageIndex === index ? styles.active : ""}`}
-                    onClick={() => setMainImageIndex(index)}
-                  >
-                    <img src={img} alt={`${product.name} vista ${index + 1}`} />
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <div className={styles.imageCounter}>
-              {mainImageIndex + 1} / {product.images.length}
-            </div>
-          </div>
+          <ImageGallery
+            images={product.images}
+            productName={product.name}
+            isFeatured={product.isFeatured}
+          />
 
           {/* Product Info Section */}
           <div className={styles.details}>
@@ -316,95 +225,25 @@ export function ProductDetailPage() {
                 )}
             </div>
 
-            {/* Rating placeholder */}
-            <div className={styles.rating}>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={star}
-                  size={16}
-                  fill={star <= 4 ? "#fbbf24" : "none"}
-                  color="#fbbf24"
-                />
-              ))}
-              <span>(24 reseñas)</span>
-            </div>
+            {/* Rating */}
+            <ProductRating />
 
             <p className={styles.description}>{product.description}</p>
 
             {/* Size Selection */}
-            <div className={styles.sizeSection}>
-              <div className={styles.sizeHeader}>
-                <h3>Talle</h3>
-                <button className={styles.sizeGuide}>Guía de talles</button>
-              </div>
-
-              <div className={styles.sizes}>
-                {product.stock.map((sizeStock) => (
-                  <button
-                    key={sizeStock.size}
-                    className={`
-                      ${styles.sizeButton} 
-                      ${selectedSize === sizeStock.size ? styles.selected : ""} 
-                      ${sizeStock.quantity === 0 ? styles.outOfStock : ""}
-                    `}
-                    onClick={() => {
-                      if (sizeStock.quantity > 0) {
-                        setSelectedSize(sizeStock.size);
-                        setQuantity(1);
-                      }
-                    }}
-                    disabled={sizeStock.quantity === 0}
-                    title={
-                      sizeStock.quantity === 0
-                        ? "Sin stock"
-                        : `${sizeStock.quantity} disponibles`
-                    }
-                  >
-                    {sizeStock.size}
-                    {sizeStock.quantity > 0 && sizeStock.quantity <= 3 && (
-                      <span className={styles.lowStockIndicator}>!</span>
-                    )}
-                  </button>
-                ))}
-              </div>
-
-              {!selectedSize && (
-                <p className={styles.sizeWarning}>
-                  Selecciona un talle para continuar
-                </p>
-              )}
-
-              {selectedSize && (
-                <p className={styles.stockInfo}>
-                  {selectedSizeStock <= 3
-                    ? `¡Solo quedan ${selectedSizeStock} unidades!`
-                    : `${selectedSizeStock} disponibles`}
-                  {itemInCart && ` (${cartQuantity} en carrito)`}
-                </p>
-              )}
-            </div>
+            <SizeSelector
+              stock={product.stock}
+              selectedSize={selectedSize}
+              onSelectSize={handleSizeSelect}
+              cartQuantity={cartQuantity}
+            />
 
             {/* Quantity */}
-            <div className={styles.quantitySection}>
-              <h3>Cantidad</h3>
-              <div className={styles.quantityControls}>
-                <button
-                  onClick={() => handleQuantityChange(-1)}
-                  disabled={quantity <= 1}
-                  aria-label="Reducir cantidad"
-                >
-                  <Minus size={18} />
-                </button>
-                <span>{quantity}</span>
-                <button
-                  onClick={() => handleQuantityChange(1)}
-                  disabled={!selectedSize || quantity >= availableStock}
-                  aria-label="Aumentar cantidad"
-                >
-                  <Plus size={18} />
-                </button>
-              </div>
-            </div>
+            <QuantitySelector
+              quantity={quantity}
+              maxQuantity={availableStock}
+              onQuantityChange={handleQuantityChange}
+            />
 
             {/* Add to Cart */}
             <div className={styles.cartActions}>
@@ -440,89 +279,13 @@ export function ProductDetailPage() {
             </div>
 
             {/* Features */}
-            <div className={styles.features}>
-              <div className={styles.feature}>
-                <Truck size={20} />
-                <div>
-                  <strong>Envío gratis</strong>
-                  <span>En compras mayores a $50.000</span>
-                </div>
-              </div>
-              <div className={styles.feature}>
-                <RotateCcw size={20} />
-                <div>
-                  <strong>Devolución gratuita</strong>
-                  <span>30 días para cambios</span>
-                </div>
-              </div>
-              <div className={styles.feature}>
-                <Shield size={20} />
-                <div>
-                  <strong>Garantía oficial</strong>
-                  <span>Producto 100% original</span>
-                </div>
-              </div>
-            </div>
+            <ProductFeatures />
 
             {/* Tags */}
-            {product.tags && product.tags.length > 0 && (
-              <div className={styles.tags}>
-                {product.tags.map((tag) => (
-                  <span key={tag} className={styles.tag}>
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
+            <ProductTags tags={product.tags || []} />
           </div>
         </div>
       </div>
-
-      {/* Zoom Modal */}
-      {isZoomed && (
-        <div className={styles.zoomModal} onClick={() => setIsZoomed(false)}>
-          <button
-            className={styles.zoomClose}
-            onClick={() => setIsZoomed(false)}
-            aria-label="Cerrar"
-          >
-            <X size={24} />
-          </button>
-
-          {product.images.length > 1 && (
-            <>
-              <button
-                className={`${styles.zoomNav} ${styles.zoomPrev}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleImageNavigation("prev");
-                }}
-              >
-                <ChevronLeft size={32} />
-              </button>
-              <button
-                className={`${styles.zoomNav} ${styles.zoomNext}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleImageNavigation("next");
-                }}
-              >
-                <ChevronRight size={32} />
-              </button>
-            </>
-          )}
-
-          <img
-            src={product.images[mainImageIndex]}
-            alt={product.name}
-            onClick={(e) => e.stopPropagation()}
-          />
-
-          <div className={styles.zoomCounter}>
-            {mainImageIndex + 1} / {product.images.length}
-          </div>
-        </div>
-      )}
 
       {/* Share Dialog */}
       <DialogConfirm

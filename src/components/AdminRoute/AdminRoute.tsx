@@ -1,9 +1,5 @@
-// ===========================================
-// COMPONENTS - ADMIN ROUTE
-// ===========================================
-
-import { Navigate } from 'react-router-dom';
-import { useAuthStore } from '@/store';
+import { Navigate } from "react-router-dom";
+import { useAuthStore } from "@/store";
 
 interface AdminRouteProps {
   children: React.ReactNode;
@@ -14,12 +10,14 @@ export function AdminRoute({ children }: AdminRouteProps) {
 
   if (isLoading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '100vh' 
-      }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
+      >
         Cargando...
       </div>
     );
