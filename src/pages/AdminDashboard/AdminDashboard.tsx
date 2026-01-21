@@ -216,13 +216,33 @@ export function AdminDashboard() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (
-      !formData.name ||
-      !formData.model ||
-      !formData.price ||
-      !formData.thumbnail
-    ) {
-      toast.error("Por favor completa los campos requeridos");
+    // Validaciones requeridas por el backend
+    if (!formData.name) {
+      toast.error("El nombre es requerido");
+      return;
+    }
+    if (!formData.model) {
+      toast.error("El modelo es requerido");
+      return;
+    }
+    if (!formData.brand) {
+      toast.error("La marca es requerida");
+      return;
+    }
+    if (!formData.description) {
+      toast.error("La descripción es requerida");
+      return;
+    }
+    if (!formData.price || formData.price <= 0) {
+      toast.error("El precio debe ser mayor a 0");
+      return;
+    }
+    if (!formData.thumbnail) {
+      toast.error("La imagen principal (thumbnail) es requerida");
+      return;
+    }
+    if (formData.images.length === 0) {
+      toast.error("Debes agregar al menos una imagen");
       return;
     }
 
@@ -230,10 +250,21 @@ export function AdminDashboard() {
       setIsSubmitting(true);
 
       const productData = {
-        ...formData,
         sku: editingProduct?.sku || `SKU-${Date.now()}`,
+        name: formData.name,
+        model: formData.model,
+        brand: formData.brand,
+        description: formData.description,
+        category: formData.category,
+        genre: formData.genre,
+        price: formData.price,
+        compareAtPrice: formData.compareAtPrice,
         currency: "ARS",
-        totalStock: formData.stock.reduce((sum, s) => sum + s.quantity, 0),
+        images: formData.images,
+        thumbnail: formData.thumbnail,
+        stock: formData.stock,
+        isFeatured: formData.isFeatured,
+        tags: formData.tags,
       };
 
       if (editingProduct) {
