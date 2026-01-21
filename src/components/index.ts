@@ -14,13 +14,14 @@ export { Modal, ConfirmDialog } from "./Modal";
 export { Dialog, DialogActions, DialogConfirm, DialogAlert } from "./Dialog";
 
 // Reusable Components
-export { Form, FormField, FormSection } from "./Form";
+export { Form, FormField, FormSection, commonFields } from "./Form";
 export type { FormConfig, FieldConfig, FormSectionConfig } from "./Form";
 export { StatsCard, StatsGrid } from "./StatsCard";
 export type { StatCardData } from "./StatsCard";
 export { DataTable } from "./DataTable";
 export type { Column } from "./DataTable";
 export { Marquee } from "./Marquee";
+export { InfoCard } from "./InfoCard";
 
 // Filters
 export {

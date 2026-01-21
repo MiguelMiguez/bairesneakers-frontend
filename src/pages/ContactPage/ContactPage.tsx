@@ -1,10 +1,11 @@
-// ===========================================
-// PAGES - CONTACT PAGE (Refactored)
-// ===========================================
-
 import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
-import { Form, FormSectionConfig, commonFields } from "@/components/Form";
-import { toast } from "@/components";
+import {
+  Form,
+  FormSectionConfig,
+  commonFields,
+  InfoCard,
+  toast,
+} from "@/components";
 import { useForm } from "@/hooks";
 import styles from "./ContactPage.module.css";
 
@@ -87,45 +88,26 @@ export function ContactPage() {
         <div className={styles.content}>
           {/* Contact Info */}
           <aside className={styles.info}>
-            <div className={styles.infoCard}>
-              <div className={styles.infoIcon}>
-                <Mail size={24} />
-              </div>
-              <div>
-                <h3>Email</h3>
-                <p>contacto@sneakersolid.com</p>
-              </div>
-            </div>
-
-            <div className={styles.infoCard}>
-              <div className={styles.infoIcon}>
-                <Phone size={24} />
-              </div>
-              <div>
-                <h3>Teléfono</h3>
-                <p>+54 11 1234-5678</p>
-              </div>
-            </div>
-
-            <div className={styles.infoCard}>
-              <div className={styles.infoIcon}>
-                <MapPin size={24} />
-              </div>
-              <div>
-                <h3>Ubicación</h3>
-                <p>Buenos Aires, Argentina</p>
-              </div>
-            </div>
-
-            <div className={styles.infoCard}>
-              <div className={styles.infoIcon}>
-                <Clock size={24} />
-              </div>
-              <div>
-                <h3>Horario de atención</h3>
-                <p>Lun - Vie: 9:00 - 18:00</p>
-              </div>
-            </div>
+            <InfoCard
+              icon={<Mail size={24} />}
+              title="Email"
+              description="contacto@sneakersolid.com"
+            />
+            <InfoCard
+              icon={<Phone size={24} />}
+              title="Teléfono"
+              description="+54 11 1234-5678"
+            />
+            <InfoCard
+              icon={<MapPin size={24} />}
+              title="Ubicación"
+              description="Buenos Aires, Argentina"
+            />
+            <InfoCard
+              icon={<Clock size={24} />}
+              title="Horario de atención"
+              description="Lun - Vie: 9:00 - 18:00"
+            />
           </aside>
 
           {/* Contact Form */}
