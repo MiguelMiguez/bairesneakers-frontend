@@ -38,10 +38,7 @@ const brands = [
     name: "Puma",
     logo: "https://upload.wikimedia.org/wikipedia/en/d/da/Puma_complete_logo.svg",
   },
-  {
-    name: "New Balance",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/e/ea/New_Balance_logo.svg",
-  },
+
   {
     name: "Converse",
     logo: "https://upload.wikimedia.org/wikipedia/commons/3/30/Converse_logo.svg",
@@ -50,10 +47,7 @@ const brands = [
     name: "Vans",
     logo: "https://upload.wikimedia.org/wikipedia/commons/9/91/Vans-logo.svg",
   },
-  {
-    name: "Reebok",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/0/0e/Reebok_2019_logo.svg",
-  },
+
   {
     name: "Jordan",
     logo: "https://upload.wikimedia.org/wikipedia/en/3/37/Jumpman_logo.svg",
