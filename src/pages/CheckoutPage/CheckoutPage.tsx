@@ -2,30 +2,36 @@
 // PAGES - CHECKOUT PAGE
 // ===========================================
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useCartStore, useAuthStore } from '@/store';
-import { useCheckout } from '@/hooks';
-import styles from './CheckoutPage.module.css';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useCartStore, useCartSubtotal, useAuthStore } from "@/store";
+import { useCheckout } from "@/hooks";
+import styles from "./CheckoutPage.module.css";
 
 interface ShippingForm {
-  address: string;
+  street: string;
+  number: string;
   city: string;
-  postalCode: string;
+  state: string;
+  zipCode: string;
   phone: string;
 }
 
 export function CheckoutPage() {
   const navigate = useNavigate();
-  const { items, totalPrice, clearCart } = useCartStore();
+  const { items, clearCart } = useCartStore();
+  const subtotal = useCartSubtotal();
   const { user, isAuthenticated } = useAuthStore();
-  const { createOrder, isLoading, error } = useCheckout();
+  const { createOrder, createPaymentPreference, isLoading, error } =
+    useCheckout();
 
   const [shipping, setShipping] = useState<ShippingForm>({
-    address: '',
-    city: '',
-    postalCode: '',
-    phone: '',
+    street: "",
+    number: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    phone: "",
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,7 +43,7 @@ export function CheckoutPage() {
     e.preventDefault();
 
     if (!isAuthenticated) {
-      navigate('/login', { state: { from: '/checkout' } });
+      navigate("/login", { state: { from: "/checkout" } });
       return;
     }
 
@@ -45,28 +51,38 @@ export function CheckoutPage() {
       productId: item.productId,
       quantity: item.quantity,
       size: item.size,
-      price: item.price,
     }));
 
-    const result = await createOrder({
+    const order = await createOrder({
       items: orderItems,
       shippingAddress: {
-        street: shipping.address,
+        street: shipping.street,
+        number: shipping.number,
         city: shipping.city,
-        postalCode: shipping.postalCode,
-        country: 'Argentina',
+        state: shipping.state,
+        country: "Argentina",
+        zipCode: shipping.zipCode,
+        isDefault: false,
       },
+      shippingMethod: "standard",
     });
 
-    if (result?.preferenceId) {
-      // Redirect to MercadoPago
-      window.location.href = `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${result.preferenceId}`;
-      clearCart();
+    if (order?.id) {
+      const preference = await createPaymentPreference(order.id);
+      if (preference?.initPoint) {
+        clearCart();
+        window.location.href = preference.initPoint;
+      }
     }
   };
 
   const isFormValid =
-    shipping.address && shipping.city && shipping.postalCode && shipping.phone;
+    shipping.street &&
+    shipping.number &&
+    shipping.city &&
+    shipping.state &&
+    shipping.zipCode &&
+    shipping.phone;
 
   if (items.length === 0) {
     return (
@@ -75,9 +91,7 @@ export function CheckoutPage() {
           <div className={styles.empty}>
             <h2>Tu carrito está vacío</h2>
             <p>Agrega productos antes de continuar al checkout</p>
-            <button onClick={() => navigate('/sneakers')}>
-              Ver Productos
-            </button>
+            <button onClick={() => navigate("/sneakers")}>Ver Productos</button>
           </div>
         </div>
       </div>
@@ -99,7 +113,9 @@ export function CheckoutPage() {
                 <p>Debes iniciar sesión para completar tu compra</p>
                 <button
                   type="button"
-                  onClick={() => navigate('/login', { state: { from: '/checkout' } })}
+                  onClick={() =>
+                    navigate("/login", { state: { from: "/checkout" } })
+                  }
                 >
                   Iniciar Sesión
                 </button>
@@ -108,24 +124,38 @@ export function CheckoutPage() {
 
             {isAuthenticated && user && (
               <div className={styles.userInfo}>
-                <p>Comprando como: <strong>{user.email}</strong></p>
+                <p>
+                  Comprando como: <strong>{user.email}</strong>
+                </p>
               </div>
             )}
 
             <div className={styles.formGroup}>
-              <label htmlFor="address">Dirección</label>
+              <label htmlFor="street">Calle</label>
               <input
                 type="text"
-                id="address"
-                name="address"
-                value={shipping.address}
+                id="street"
+                name="street"
+                value={shipping.street}
                 onChange={handleInputChange}
-                placeholder="Calle y número"
+                placeholder="Nombre de la calle"
                 required
               />
             </div>
 
             <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label htmlFor="number">Número</label>
+                <input
+                  type="text"
+                  id="number"
+                  name="number"
+                  value={shipping.number}
+                  onChange={handleInputChange}
+                  placeholder="Número"
+                  required
+                />
+              </div>
               <div className={styles.formGroup}>
                 <label htmlFor="city">Ciudad</label>
                 <input
@@ -138,13 +168,28 @@ export function CheckoutPage() {
                   required
                 />
               </div>
+            </div>
+
+            <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label htmlFor="postalCode">Código Postal</label>
+                <label htmlFor="state">Provincia</label>
                 <input
                   type="text"
-                  id="postalCode"
-                  name="postalCode"
-                  value={shipping.postalCode}
+                  id="state"
+                  name="state"
+                  value={shipping.state}
+                  onChange={handleInputChange}
+                  placeholder="Provincia"
+                  required
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="zipCode">Código Postal</label>
+                <input
+                  type="text"
+                  id="zipCode"
+                  name="zipCode"
+                  value={shipping.zipCode}
                   onChange={handleInputChange}
                   placeholder="C.P."
                   required
@@ -165,14 +210,14 @@ export function CheckoutPage() {
               />
             </div>
 
-            {error && <div className={styles.error}>{error}</div>}
+            {error && <div className={styles.error}>{error.message}</div>}
 
             <button
               type="submit"
               className={styles.submitButton}
               disabled={!isFormValid || isLoading || !isAuthenticated}
             >
-              {isLoading ? 'Procesando...' : 'Pagar con Mercado Pago'}
+              {isLoading ? "Procesando..." : "Pagar con Mercado Pago"}
             </button>
           </form>
 
@@ -182,15 +227,21 @@ export function CheckoutPage() {
 
             <div className={styles.items}>
               {items.map((item) => (
-                <div key={`${item.productId}-${item.size}`} className={styles.item}>
-                  <img src={item.imageUrl} alt={item.name} />
+                <div
+                  key={`${item.productId}-${item.size}`}
+                  className={styles.item}
+                >
+                  <img src={item.product.thumbnail} alt={item.product.name} />
                   <div className={styles.itemInfo}>
-                    <p className={styles.itemName}>{item.name}</p>
+                    <p className={styles.itemName}>{item.product.name}</p>
                     <p className={styles.itemDetails}>
                       Talle: {item.size} · Cant: {item.quantity}
                     </p>
                     <p className={styles.itemPrice}>
-                      ${(item.price * item.quantity).toLocaleString('es-AR')}
+                      $
+                      {(item.product.price * item.quantity).toLocaleString(
+                        "es-AR",
+                      )}
                     </p>
                   </div>
                 </div>
@@ -200,16 +251,19 @@ export function CheckoutPage() {
             <div className={styles.totals}>
               <div className={styles.totalRow}>
                 <span>Subtotal</span>
-                <span>${totalPrice.toLocaleString('es-AR')}</span>
+                <span>${subtotal.toLocaleString("es-AR")}</span>
               </div>
               <div className={styles.totalRow}>
                 <span>Envío</span>
-                <span>{totalPrice >= 50000 ? 'Gratis' : '$5.000'}</span>
+                <span>{subtotal >= 50000 ? "Gratis" : "$5.000"}</span>
               </div>
               <div className={`${styles.totalRow} ${styles.final}`}>
                 <span>Total</span>
                 <span>
-                  ${(totalPrice + (totalPrice >= 50000 ? 0 : 5000)).toLocaleString('es-AR')}
+                  $
+                  {(subtotal + (subtotal >= 50000 ? 0 : 5000)).toLocaleString(
+                    "es-AR",
+                  )}
                 </span>
               </div>
             </div>

@@ -93,14 +93,7 @@ export function Navbar() {
         </div>
       </nav>
 
-      <Cart
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        onCheckout={() => {
-          setIsCartOpen(false);
-          window.location.href = "/checkout";
-        }}
-      />
+      <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   );
 }

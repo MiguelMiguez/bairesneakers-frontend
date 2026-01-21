@@ -11,3 +11,4 @@ export { ProtectedRoute } from "./ProtectedRoute";
 export { AdminRoute } from "./AdminRoute";
 export { ToastProvider, toast } from "./Toast";
 export { Modal, ConfirmDialog } from "./Modal";
+export { Dialog, DialogActions, DialogConfirm, DialogAlert } from "./Dialog";

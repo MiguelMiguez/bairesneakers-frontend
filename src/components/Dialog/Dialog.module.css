@@ -1,0 +1,263 @@
+/* ===========================================
+   DIALOG COMPONENT STYLES
+   =========================================== */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1200;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.dialog {
+  position: relative;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: slideIn 0.2s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Sizes */
+.sm {
+  width: 100%;
+  max-width: 400px;
+}
+
+.md {
+  width: 100%;
+  max-width: 500px;
+}
+
+.lg {
+  width: 100%;
+  max-width: 640px;
+}
+
+/* Close Button */
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.15s;
+  z-index: 1;
+}
+
+.closeButton:hover {
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+
+/* Content */
+.content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Icon Wrapper */
+.iconWrapper {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+}
+
+.iconWrapper.danger {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.iconWrapper.warning {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.iconWrapper.success {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.iconWrapper.info {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+/* Text */
+.text {
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 0.5rem;
+}
+
+.description {
+  font-size: 0.9375rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.actions button {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Cancel Button */
+.cancelButton {
+  background: #f5f5f5;
+  color: #1a1a1a;
+  border: 1px solid #e0e0e0;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: #e8e8e8;
+}
+
+/* Confirm Button */
+.confirmButton {
+  border: none;
+  color: white;
+}
+
+.confirmButton.danger {
+  background: #dc2626;
+}
+
+.confirmButton.danger:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.confirmButton.warning {
+  background: #d97706;
+}
+
+.confirmButton.warning:hover:not(:disabled) {
+  background: #b45309;
+}
+
+.confirmButton.success {
+  background: #16a34a;
+}
+
+.confirmButton.success:hover:not(:disabled) {
+  background: #15803d;
+}
+
+.confirmButton.info {
+  background: #2563eb;
+}
+
+.confirmButton.info:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.confirmButton.default {
+  background: #1a1a1a;
+}
+
+.confirmButton.default:hover:not(:disabled) {
+  background: #333;
+}
+
+/* Primary Button (for alerts) */
+.primaryButton {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: 10px;
+  background: #1a1a1a;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.primaryButton:hover {
+  background: #333;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .dialog {
+    margin: 1rem;
+    border-radius: 12px;
+  }
+
+  .content {
+    padding: 1.25rem;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}

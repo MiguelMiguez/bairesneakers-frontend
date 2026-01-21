@@ -2,25 +2,25 @@
 // APP COMPONENT - ROUTER CONFIGURATION
 // ===========================================
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { firebaseAuth } from "@/config/firebase.config";
 import { useAuthStore } from "@/store";
-import { Navbar, Cart, Footer, AdminRoute, ToastProvider } from "@/components";
+import { Navbar, Footer, AdminRoute, ToastProvider } from "@/components";
 import {
   HomePage,
   ProductsPage,
   ProductDetailPage,
   CheckoutPage,
   LoginPage,
+  ContactPage,
   AdminDashboard,
 } from "@/pages";
 import "./App.css";
 
 function App() {
   const { setUser, setLoading, setAdmin, reset } = useAuthStore();
-  const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
@@ -33,10 +33,15 @@ function App() {
           setUser({
             uid: firebaseUser.uid,
             email: firebaseUser.email || "",
-            displayName: firebaseUser.displayName || undefined,
+            displayName: firebaseUser.displayName || "",
+            firstName: "",
+            lastName: "",
             role: isAdmin ? "admin" : "user",
-            createdAt:
-              firebaseUser.metadata.creationTime || new Date().toISOString(),
+            addresses: [],
+            createdAt: new Date(
+              firebaseUser.metadata.creationTime || Date.now(),
+            ),
+            updatedAt: new Date(),
           });
           setAdmin(isAdmin);
         } else {
@@ -49,13 +54,11 @@ function App() {
     return () => unsubscribe();
   }, [setUser, setLoading, setAdmin, reset]);
 
-  const toggleCart = () => setIsCartOpen((prev) => !prev);
-
   return (
     <BrowserRouter>
       <ToastProvider />
       <div className="app">
-        <Navbar onCartClick={toggleCart} />
+        <Navbar />
 
         <main className="main-content">
           <Routes>
@@ -64,6 +67,7 @@ function App() {
             <Route path="/sneakers/:id" element={<ProductDetailPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/contact" element={<ContactPage />} />
             <Route
               path="/admin/*"
               element={
@@ -76,7 +80,6 @@ function App() {
         </main>
 
         <Footer />
-        <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       </div>
     </BrowserRouter>
   );

@@ -7,6 +7,7 @@ import { X, Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
 import { useCartStore, useCartSubtotal } from "@/store";
 import { ConfirmDialog } from "../Modal";
 import { toast } from "../Toast";
+import { ShoeSize } from "@/types";
 import styles from "./Cart.module.css";
 
 interface CartProps {
@@ -32,7 +33,11 @@ export function Cart({ isOpen, onClose }: CartProps) {
     toast.success("Carrito vaciado");
   };
 
-  const handleRemoveItem = (productId: string, size: number, name: string) => {
+  const handleRemoveItem = (
+    productId: string,
+    size: ShoeSize,
+    name: string,
+  ) => {
     removeItem(productId, size);
     toast.success(`${name} eliminado del carrito`);
   };

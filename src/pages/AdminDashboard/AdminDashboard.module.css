@@ -255,8 +255,36 @@
 .tableWrapper {
   background: white;
   border-radius: 12px;
-  overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 380px);
+}
+
+.tableScrollContainer {
+  overflow-y: auto;
+  overflow-x: auto;
+  flex: 1;
+}
+
+/* Scrollbar styling */
+.tableScrollContainer::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.tableScrollContainer::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+
+.tableScrollContainer::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.tableScrollContainer::-webkit-scrollbar-thumb:hover {
+  background: #999;
 }
 
 .table {
@@ -277,13 +305,16 @@
   font-weight: 600;
   text-transform: uppercase;
   color: #666;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .table tr:last-child td {
   border-bottom: none;
 }
 
-.table tr:hover {
+.table tbody tr:hover {
   background: #fafafa;
 }
 

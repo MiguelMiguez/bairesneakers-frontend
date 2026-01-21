@@ -13,13 +13,15 @@ type AuthMode = "login" | "register";
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, register, loginWithGoogle, isLoading, error } = useAuth();
+  const { login, register, loginWithGoogle, isLoading } = useAuth();
 
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [localError, setLocalError] = useState("");
 
   const from = (location.state as { from?: string })?.from || "/";
@@ -38,16 +40,24 @@ export function LoginPage() {
         return;
       }
 
-      const success = await register(email, password, displayName);
-      if (success) {
+      try {
+        await register({ email, password, displayName, firstName, lastName });
         toast.success("¡Cuenta creada exitosamente! Bienvenido/a 🎉");
         navigate(from, { replace: true });
+      } catch (err) {
+        setLocalError(
+          err instanceof Error ? err.message : "Error al registrar",
+        );
       }
     } else {
-      const success = await login(email, password);
-      if (success) {
+      try {
+        await login({ email, password });
         toast.success("¡Sesión iniciada correctamente!");
         navigate(from, { replace: true });
+      } catch (err) {
+        setLocalError(
+          err instanceof Error ? err.message : "Error al iniciar sesión",
+        );
       }
     }
   };
@@ -73,17 +83,43 @@ export function LoginPage() {
 
           <form onSubmit={handleSubmit} className={styles.form}>
             {mode === "register" && (
-              <div className={styles.formGroup}>
-                <label htmlFor="displayName">Nombre</label>
-                <input
-                  type="text"
-                  id="displayName"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="Tu nombre"
-                  required
-                />
-              </div>
+              <>
+                <div className={styles.formGroup}>
+                  <label htmlFor="displayName">Nombre de usuario</label>
+                  <input
+                    type="text"
+                    id="displayName"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Tu nombre de usuario"
+                    required
+                  />
+                </div>
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="firstName">Nombre</label>
+                    <input
+                      type="text"
+                      id="firstName"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="Nombre"
+                      required
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="lastName">Apellido</label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Apellido"
+                      required
+                    />
+                  </div>
+                </div>
+              </>
             )}
 
             <div className={styles.formGroup}>
@@ -124,9 +160,7 @@ export function LoginPage() {
               </div>
             )}
 
-            {(error || localError) && (
-              <div className={styles.error}>{localError || error}</div>
-            )}
+            {localError && <div className={styles.error}>{localError}</div>}
 
             <button
               type="submit"
