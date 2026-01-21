@@ -14,33 +14,6 @@
   padding: 0 1.5rem;
 }
 
-/* Breadcrumb */
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-  font-size: 0.875rem;
-}
-
-.breadcrumb a {
-  color: #666;
-  text-decoration: none;
-}
-
-.breadcrumb a:hover {
-  color: #1a1a1a;
-}
-
-.breadcrumb span {
-  color: #999;
-}
-
-.breadcrumb span:last-child {
-  color: #1a1a1a;
-  font-weight: 500;
-}
-
 /* Skeleton Loading */
 .skeleton {
   display: grid;

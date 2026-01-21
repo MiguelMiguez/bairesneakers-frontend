@@ -13,6 +13,7 @@ import {
   ProductFeatures,
   ProductTags,
   ProductRating,
+  Breadcrumb,
 } from "@/components";
 import styles from "./ProductDetailPage.module.css";
 
@@ -155,13 +156,13 @@ export function ProductDetailPage() {
     <div className={styles.page}>
       <div className={styles.container}>
         {/* Breadcrumb */}
-        <nav className={styles.breadcrumb}>
-          <Link to="/">Inicio</Link>
-          <span>/</span>
-          <Link to="/sneakers">Sneakers</Link>
-          <span>/</span>
-          <span>{product.brand}</span>
-        </nav>
+        <Breadcrumb
+          items={[
+            { label: "Inicio", href: "/" },
+            { label: "Sneakers", href: "/sneakers" },
+            { label: product.brand },
+          ]}
+        />
 
         <div className={styles.content}>
           {/* Gallery Section */}

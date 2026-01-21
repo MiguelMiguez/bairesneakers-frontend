@@ -1,0 +1,49 @@
+/* ===========================================
+   STYLES - BREADCRUMB
+   =========================================== */
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  font-size: 0.875rem;
+  margin-bottom: 24px;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.separator {
+  margin: 0 8px;
+  color: #ccc;
+}
+
+.link {
+  color: #666;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: #1a1a1a;
+  text-decoration: underline;
+}
+
+.current {
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .breadcrumb {
+    font-size: 0.8rem;
+    margin-bottom: 16px;
+  }
+
+  .separator {
+    margin: 0 6px;
+  }
+}

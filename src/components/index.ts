@@ -22,6 +22,8 @@ export { DataTable } from "./DataTable";
 export type { Column } from "./DataTable";
 export { Marquee } from "./Marquee";
 export { InfoCard } from "./InfoCard";
+export { Breadcrumb } from "./Breadcrumb";
+export type { BreadcrumbItem } from "./Breadcrumb";
 
 // Filters
 export {
