@@ -2,7 +2,7 @@
 // COMPONENTS - MARQUEE (Infinite Scroll)
 // ===========================================
 
-import { ReactNode, useRef, useEffect, useState } from "react";
+import { ReactNode, useRef, useEffect, useState, useCallback } from "react";
 import styles from "./Marquee.module.css";
 
 interface MarqueeProps {
@@ -23,32 +23,54 @@ export function Marquee({
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [copies, setCopies] = useState(2);
+  const [duration, setDuration] = useState(20);
+  const [isVisible, setIsVisible] = useState(true);
+
+  const calculateAnimation = useCallback(() => {
+    if (!containerRef.current || !contentRef.current) return;
+
+    const containerWidth = containerRef.current.offsetWidth;
+    const contentWidth = contentRef.current.scrollWidth / copies;
+
+    // Need enough copies to fill at least 2x the container width
+    const neededCopies = Math.ceil((containerWidth * 2) / contentWidth) + 1;
+    const minCopies = Math.max(neededCopies, 2);
+
+    if (minCopies !== copies) {
+      setCopies(minCopies);
+    }
+
+    // Calculate duration based on content width and speed
+    const newDuration = contentWidth / speed;
+    setDuration(newDuration);
+  }, [copies, speed]);
 
   useEffect(() => {
-    const calculateCopies = () => {
-      if (!containerRef.current || !contentRef.current) return;
+    calculateAnimation();
+    window.addEventListener("resize", calculateAnimation);
 
-      const containerWidth = containerRef.current.offsetWidth;
-      const contentWidth = contentRef.current.scrollWidth / copies;
+    return () => window.removeEventListener("resize", calculateAnimation);
+  }, [calculateAnimation, children]);
 
-      // Need enough copies to fill at least 2x the container width
-      const neededCopies = Math.ceil((containerWidth * 2) / contentWidth) + 1;
-      const minCopies = Math.max(neededCopies, 2);
-
-      if (minCopies !== copies) {
-        setCopies(minCopies);
+  // Handle visibility change to reset animation when tab becomes visible again
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setIsVisible(false);
+      } else {
+        // Small delay to reset animation smoothly
+        setIsVisible(false);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setIsVisible(true);
+          });
+        });
       }
     };
 
-    calculateCopies();
-    window.addEventListener("resize", calculateCopies);
-
-    return () => window.removeEventListener("resize", calculateCopies);
-  }, [copies, children]);
-
-  // Calculate animation duration based on speed
-  const contentWidth = contentRef.current?.scrollWidth || 1000;
-  const duration = contentWidth / copies / speed;
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
 
   return (
     <div
@@ -61,6 +83,7 @@ export function Marquee({
         style={{
           animationDuration: `${duration}s`,
           animationDirection: direction === "right" ? "reverse" : "normal",
+          animationPlayState: isVisible ? "running" : "paused",
         }}
       >
         {Array.from({ length: copies }).map((_, i) => (
