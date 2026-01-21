@@ -1,7 +1,3 @@
-// ===========================================
-// PAGES - HOME PAGE (Redesign)
-// ===========================================
-
 import { useNavigate } from "react-router-dom";
 import {
   Truck,
