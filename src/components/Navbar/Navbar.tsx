@@ -21,8 +21,8 @@ export function Navbar() {
       <nav className={styles.navbar}>
         <div className={styles.container}>
           <Link to="/" className={styles.logo}>
-            <span className={styles.logoText}>SS</span>
-            <span className={styles.logoFull}>SneakerSolid</span>
+            <span className={styles.logoText}>BS</span>
+            <span className={styles.logoFull}>BaireSneakers</span>
           </Link>
 
           <button
