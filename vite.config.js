@@ -25,5 +25,31 @@ export default defineConfig({
                 changeOrigin: true,
             },
         },
+        // Headers de seguridad para desarrollo
+        headers: {
+            'X-Content-Type-Options': 'nosniff',
+            'X-Frame-Options': 'DENY',
+            'X-XSS-Protection': '1; mode=block',
+        },
+    },
+    // Build optimizations con seguridad
+    build: {
+        // Generar source maps solo en desarrollo
+        sourcemap: false,
+        // Usar esbuild para minificación (más rápido y viene incluido)
+        minify: 'esbuild',
+        // Dividir chunks para mejor caching
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    vendor: ['react', 'react-dom', 'react-router-dom'],
+                    firebase: ['firebase/app', 'firebase/auth'],
+                },
+            },
+        },
+    },
+    // Eliminar console y debugger en producción
+    esbuild: {
+        drop: ['console', 'debugger'],
     },
 });
