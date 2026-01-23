@@ -31,16 +31,16 @@
 
 ## ► Tech Stack
 
-| Tecnología | Descripción |
-|:-----------|:------------|
-| ![React](https://img.shields.io/badge/-React%2018-61DAFB?style=flat-square&logo=react&logoColor=black) | Biblioteca de UI con hooks y componentes funcionales |
-| ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white) | Tipado estático para mayor robustez |
-| ![Vite](https://img.shields.io/badge/-Vite-646CFF?style=flat-square&logo=vite&logoColor=white) | Build tool ultra rápido con HMR |
-| ![React Router](https://img.shields.io/badge/-React%20Router%20v6-CA4245?style=flat-square&logo=reactrouter&logoColor=white) | Enrutamiento SPA declarativo |
-| ![Zustand](https://img.shields.io/badge/-Zustand-433E38?style=flat-square&logo=react&logoColor=white) | Gestión de estado global minimalista |
-| ![Firebase](https://img.shields.io/badge/-Firebase%20Auth-FFCA28?style=flat-square&logo=firebase&logoColor=black) | Autenticación segura con Google y email |
-| ![MUI](https://img.shields.io/badge/-Material%20UI-007FFF?style=flat-square&logo=mui&logoColor=white) | Componentes de UI y DataGrid |
-| ![Mercado Pago](https://img.shields.io/badge/-Mercado%20Pago-00B1EA?style=flat-square&logo=mercadopago&logoColor=white) | Integración de pagos |
+| Tecnología                                                                                                                   | Descripción                                          |
+| :--------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------- |
+| ![React](https://img.shields.io/badge/-React%2018-61DAFB?style=flat-square&logo=react&logoColor=black)                       | Biblioteca de UI con hooks y componentes funcionales |
+| ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)             | Tipado estático para mayor robustez                  |
+| ![Vite](https://img.shields.io/badge/-Vite-646CFF?style=flat-square&logo=vite&logoColor=white)                               | Build tool ultra rápido con HMR                      |
+| ![React Router](https://img.shields.io/badge/-React%20Router%20v6-CA4245?style=flat-square&logo=reactrouter&logoColor=white) | Enrutamiento SPA declarativo                         |
+| ![Zustand](https://img.shields.io/badge/-Zustand-433E38?style=flat-square&logo=react&logoColor=white)                        | Gestión de estado global minimalista                 |
+| ![Firebase](https://img.shields.io/badge/-Firebase%20Auth-FFCA28?style=flat-square&logo=firebase&logoColor=black)            | Autenticación segura con Google y email              |
+| ![MUI](https://img.shields.io/badge/-Material%20UI-007FFF?style=flat-square&logo=mui&logoColor=white)                        | Componentes de UI y DataGrid                         |
+| ![Mercado Pago](https://img.shields.io/badge/-Mercado%20Pago-00B1EA?style=flat-square&logo=mercadopago&logoColor=white)      | Integración de pagos                                 |
 
 ---
 
@@ -119,16 +119,21 @@ Los servicios actúan como adaptadores entre la UI y la API, implementando inter
 ```typescript
 // Interfaz del servicio (contrato)
 interface IProductService {
-  getProducts(filters?: ProductFilters, pagination?: PaginationOptions): Promise<PaginatedResponse<Product>>;
+  getProducts(
+    filters?: ProductFilters,
+    pagination?: PaginationOptions,
+  ): Promise<PaginatedResponse<Product>>;
   getProductById(id: string): Promise<Product>;
-  createProduct(product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<Product>;
+  createProduct(
+    product: Omit<Product, "id" | "createdAt" | "updatedAt">,
+  ): Promise<Product>;
   updateProduct(id: string, updates: Partial<Product>): Promise<Product>;
   deleteProduct(id: string): Promise<void>;
 }
 
 // Implementación con HTTP Client
 class ProductService implements IProductService {
-  private readonly endpoint = '/products';
+  private readonly endpoint = "/products";
 
   async getProducts(filters?: ProductFilters, pagination?: PaginationOptions) {
     const params = this.buildParams(filters, pagination);
@@ -165,7 +170,7 @@ function useProducts(options: UseProductsOptions = {}): UseProductsReturn {
       const response = await productService.getProducts(filters, pagination);
       setProducts(response.data);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch'));
+      setError(err instanceof Error ? err : new Error("Failed to fetch"));
     } finally {
       setIsLoading(false);
     }
@@ -196,27 +201,32 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
-      
+
       addItem: (product, size, quantity = 1) => {
         set((state) => {
           const existingIndex = state.items.findIndex(
-            (item) => item.productId === product.id && item.size === size
+            (item) => item.productId === product.id && item.size === size,
           );
-          
+
           if (existingIndex >= 0) {
             const newItems = [...state.items];
             newItems[existingIndex].quantity += quantity;
             return { items: newItems };
           }
-          
-          return { items: [...state.items, { productId: product.id, product, size, quantity }] };
+
+          return {
+            items: [
+              ...state.items,
+              { productId: product.id, product, size, quantity },
+            ],
+          };
         });
       },
-      
+
       clearCart: () => set({ items: [] }),
     }),
-    { name: 'cart-storage', storage: createJSONStorage(() => localStorage) }
-  )
+    { name: "cart-storage", storage: createJSONStorage(() => localStorage) },
+  ),
 );
 ```
 
@@ -266,17 +276,17 @@ npm run dev
 
 ## ⌘ Rutas y Páginas
 
-| Ruta | Componente | Descripción | Acceso |
-|:-----|:-----------|:------------|:-------|
-| `/` | `HomePage` | Landing page con productos destacados y hero | Público |
-| `/sneakers` | `ProductsPage` | Catálogo completo con filtros y paginación | Público |
-| `/sneakers/:id` | `ProductDetailPage` | Detalle del producto con galería de imágenes | Público |
-| `/checkout` | `CheckoutPage` | Proceso de checkout con Mercado Pago | Público |
-| `/login` | `LoginPage` | Login y registro con Firebase Auth | Público |
-| `/contact` | `ContactPage` | Formulario de contacto | Público |
-| `/admin` | `AdminDashboard` | Panel de administración con estadísticas | Admin |
-| `/admin/products/new` | `ProductFormPage` | Crear nuevo producto | Admin |
-| `/admin/products/:id/edit` | `ProductFormPage` | Editar producto existente | Admin |
+| Ruta                       | Componente          | Descripción                                  | Acceso  |
+| :------------------------- | :------------------ | :------------------------------------------- | :------ |
+| `/`                        | `HomePage`          | Landing page con productos destacados y hero | Público |
+| `/sneakers`                | `ProductsPage`      | Catálogo completo con filtros y paginación   | Público |
+| `/sneakers/:id`            | `ProductDetailPage` | Detalle del producto con galería de imágenes | Público |
+| `/checkout`                | `CheckoutPage`      | Proceso de checkout con Mercado Pago         | Público |
+| `/login`                   | `LoginPage`         | Login y registro con Firebase Auth           | Público |
+| `/contact`                 | `ContactPage`       | Formulario de contacto                       | Público |
+| `/admin`                   | `AdminDashboard`    | Panel de administración con estadísticas     | Admin   |
+| `/admin/products/new`      | `ProductFormPage`   | Crear nuevo producto                         | Admin   |
+| `/admin/products/:id/edit` | `ProductFormPage`   | Editar producto existente                    | Admin   |
 
 ---
 
@@ -284,13 +294,13 @@ npm run dev
 
 El sistema de autenticación utiliza **Firebase Auth** con las siguientes características:
 
-| Característica | Descripción |
-|:---------------|:------------|
-| **Providers** | Email/Password y Google Sign-In |
-| **Custom Claims** | Roles `admin` y `user` verificados en el backend |
-| **Route Guards** | `ProtectedRoute` y `AdminRoute` para proteger rutas |
-| **Token Management** | Token JWT automático en headers HTTP |
-| **Persistencia** | Sesión persistente con Firebase |
+| Característica       | Descripción                                         |
+| :------------------- | :-------------------------------------------------- |
+| **Providers**        | Email/Password y Google Sign-In                     |
+| **Custom Claims**    | Roles `admin` y `user` verificados en el backend    |
+| **Route Guards**     | `ProtectedRoute` y `AdminRoute` para proteger rutas |
+| **Token Management** | Token JWT automático en headers HTTP                |
+| **Persistencia**     | Sesión persistente con Firebase                     |
 
 ```typescript
 // Ejemplo de uso del auth store
@@ -298,7 +308,7 @@ const { user, isAdmin, isLoading } = useAuthStore();
 
 // El token se agrega automáticamente a las peticiones HTTP
 const token = await firebaseAuth.currentUser?.getIdToken();
-headers.set('Authorization', `Bearer ${token}`);
+headers.set("Authorization", `Bearer ${token}`);
 ```
 
 ---
@@ -307,24 +317,24 @@ headers.set('Authorization', `Bearer ${token}`);
 
 ### Componentes Principales
 
-| Componente | Descripción |
-|:-----------|:------------|
-| `Navbar` | Navegación principal con carrito y menú de usuario |
-| `Footer` | Footer con links y redes sociales |
-| `ProductCard` | Tarjeta de producto con imagen, precio y acciones |
-| `Cart` | Sidebar del carrito con items y total |
-| `Filters` | Panel de filtros (categoría, marca, precio, talle) |
-| `DataTable` | Tabla de datos con MUI DataGrid |
-| `Modal` | Modal genérico reutilizable |
-| `Toast` | Sistema de notificaciones con react-hot-toast |
+| Componente    | Descripción                                        |
+| :------------ | :------------------------------------------------- |
+| `Navbar`      | Navegación principal con carrito y menú de usuario |
+| `Footer`      | Footer con links y redes sociales                  |
+| `ProductCard` | Tarjeta de producto con imagen, precio y acciones  |
+| `Cart`        | Sidebar del carrito con items y total              |
+| `Filters`     | Panel de filtros (categoría, marca, precio, talle) |
+| `DataTable`   | Tabla de datos con MUI DataGrid                    |
+| `Modal`       | Modal genérico reutilizable                        |
+| `Toast`       | Sistema de notificaciones con react-hot-toast      |
 
 ### Sistema de Filtros
 
 ```typescript
 // Tipos de filtros disponibles
 interface ProductFilters {
-  category?: ProductCategory;  // sneakers, boots, sandals, casual
-  genre?: ProductGenre;        // masculino, femenino, unisex, niño, niña
+  category?: ProductCategory; // sneakers, boots, sandals, casual
+  genre?: ProductGenre; // masculino, femenino, unisex, niño, niña
   brand?: string;
   minPrice?: number;
   maxPrice?: number;
@@ -337,12 +347,12 @@ interface ProductFilters {
 
 ## ⌨ Scripts
 
-| Comando | Descripción |
-|:--------|:------------|
-| `npm run dev` | Inicia servidor de desarrollo con HMR |
-| `npm run build` | Compila TypeScript y genera build de producción |
-| `npm run preview` | Preview local del build de producción |
-| `npm run lint` | Ejecuta ESLint para análisis de código |
+| Comando           | Descripción                                     |
+| :---------------- | :---------------------------------------------- |
+| `npm run dev`     | Inicia servidor de desarrollo con HMR           |
+| `npm run build`   | Compila TypeScript y genera build de producción |
+| `npm run preview` | Preview local del build de producción           |
+| `npm run lint`    | Ejecuta ESLint para análisis de código          |
 
 ---
 
@@ -393,15 +403,15 @@ eslint              ^8.56.0     Linter
 
 ### Convención de Commits
 
-| Prefijo | Uso |
-|:--------|:----|
-| `feat:` | Nueva funcionalidad |
-| `fix:` | Corrección de bugs |
-| `docs:` | Documentación |
-| `style:` | Formateo, sin cambios de código |
-| `refactor:` | Refactorización de código |
-| `test:` | Tests |
-| `chore:` | Tareas de mantenimiento |
+| Prefijo     | Uso                             |
+| :---------- | :------------------------------ |
+| `feat:`     | Nueva funcionalidad             |
+| `fix:`      | Corrección de bugs              |
+| `docs:`     | Documentación                   |
+| `style:`    | Formateo, sin cambios de código |
+| `refactor:` | Refactorización de código       |
+| `test:`     | Tests                           |
+| `chore:`    | Tareas de mantenimiento         |
 
 ---
 
@@ -413,8 +423,8 @@ Este proyecto está bajo la licencia **MIT**.
 
 ---
 
-Desarrollado con ♦ por el equipo de BaireSneakers
+Desarrollado por Miguel Miguez
 
-[![GitHub](https://img.shields.io/badge/GitHub-Repo-181717?style=flat-square&logo=github)](https://github.com/tu-usuario/sneaker-solid-frontend)
+[![GitHub](https://img.shields.io/badge/GitHub-Repo-181717?style=flat-square&logo=github)](https://github.com/MiguelMiguez/bairesneakers-frontend)
 
 </div>
