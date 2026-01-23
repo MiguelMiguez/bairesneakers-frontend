@@ -1,7 +1,3 @@
-// ===========================================
-// TYPES - API RESPONSE INTERFACES
-// ===========================================
-
 export interface ApiResponse<T = unknown> {
   success: true;
   data: T;

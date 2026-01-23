@@ -1,7 +1,3 @@
-// ===========================================
-// PAGES - PRODUCT FORM PAGE (Refactored)
-// ===========================================
-
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowLeft, Loader2, X, ImagePlus, Save } from "lucide-react";

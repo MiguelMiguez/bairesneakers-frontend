@@ -1,7 +1,3 @@
-// ===========================================
-// PRODUCTS PAGE - TYPE DEFINITIONS
-// ===========================================
-
 import type { ProductCategory, ProductGenre, ShoeSize } from "@/types";
 import type { FilterOption, PriceRange } from "@/components";
 

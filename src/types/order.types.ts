@@ -1,24 +1,16 @@
-// ===========================================
-// TYPES - ORDER INTERFACES
-// ===========================================
+import { Address } from "./user.types";
+import { Product, ShoeSize } from "./product.types";
 
-import { Address } from './user.types';
-import { Product, ShoeSize } from './product.types';
+export type OrderStatus =
+  | "pending"
+  | "approved"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled"
+  | "refunded";
 
-export type OrderStatus = 
-  | 'pending'
-  | 'approved'
-  | 'processing'
-  | 'shipped'
-  | 'delivered'
-  | 'cancelled'
-  | 'refunded';
-
-export type PaymentStatus = 
-  | 'pending'
-  | 'approved'
-  | 'rejected'
-  | 'cancelled';
+export type PaymentStatus = "pending" | "approved" | "rejected" | "cancelled";
 
 export interface OrderItem {
   productId: string;
@@ -80,7 +72,7 @@ export interface CreateOrderDTO {
     size: ShoeSize;
     quantity: number;
   }>;
-  shippingAddress: Omit<Address, 'id'>;
+  shippingAddress: Omit<Address, "id">;
   shippingMethod: string;
 }
 

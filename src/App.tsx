@@ -1,7 +1,3 @@
-// ===========================================
-// APP COMPONENT - ROUTER CONFIGURATION
-// ===========================================
-
 import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";

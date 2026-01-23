@@ -1,7 +1,3 @@
-// ===========================================
-// STORE - CART STORE (ZUSTAND)
-// ===========================================
-
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { CartItem, Product, ShoeSize } from "@/types";

@@ -1,8 +1,4 @@
-// ===========================================
-// TYPES - USER INTERFACES
-// ===========================================
-
-export type UserRole = 'user' | 'admin';
+export type UserRole = "user" | "admin";
 
 export interface Address {
   id: string;

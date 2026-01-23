@@ -1,10 +1,23 @@
-// ===========================================
-// TYPES - PRODUCT INTERFACES
-// ===========================================
-
-export type ProductCategory = 'sneakers' | 'boots' | 'sandals' | 'casual';
-export type ProductGenre = 'masculino' | 'femenino' | 'unisex' | 'niño' | 'niña';
-export type ShoeSize = 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46;
+export type ProductCategory = "sneakers" | "boots" | "sandals" | "casual";
+export type ProductGenre =
+  | "masculino"
+  | "femenino"
+  | "unisex"
+  | "niño"
+  | "niña";
+export type ShoeSize =
+  | 35
+  | 36
+  | 37
+  | 38
+  | 39
+  | 40
+  | 41
+  | 42
+  | 43
+  | 44
+  | 45
+  | 46;
 
 export interface SizeStock {
   size: ShoeSize;
@@ -48,7 +61,7 @@ export interface PaginationOptions {
   page: number;
   limit: number;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 export interface PaginatedResponse<T> {

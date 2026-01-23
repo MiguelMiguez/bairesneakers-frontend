@@ -1,7 +1,3 @@
-// ===========================================
-// PAGES - PRODUCTS PAGE (Refactored)
-// ===========================================
-
 import { useMemo, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -20,7 +16,14 @@ import {
   MobileFilters,
 } from "@/components";
 import { useProductFilters } from "./useProductFilters";
-import { CATEGORIES, GENRES, SIZES, BRANDS, SORT_OPTIONS, DEFAULT_PAGINATION } from "./constants";
+import {
+  CATEGORIES,
+  GENRES,
+  SIZES,
+  BRANDS,
+  SORT_OPTIONS,
+  DEFAULT_PAGINATION,
+} from "./constants";
 import styles from "./ProductsPage.module.css";
 
 export function ProductsPage() {
@@ -71,7 +74,15 @@ export function ProductsPage() {
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, selectedBrands, priceRange, category, genre, buildApiFilters, setFilters]);
+  }, [
+    searchQuery,
+    selectedBrands,
+    priceRange,
+    category,
+    genre,
+    buildApiFilters,
+    setFilters,
+  ]);
 
   // Filter products by size on client side
   const filteredProducts = useMemo(() => {
@@ -79,8 +90,8 @@ export function ProductsPage() {
 
     return products.filter((product) =>
       product.stock.some(
-        (s) => selectedSizes.includes(s.size) && s.quantity > 0
-      )
+        (s) => selectedSizes.includes(s.size) && s.quantity > 0,
+      ),
     );
   }, [products, selectedSizes]);
 

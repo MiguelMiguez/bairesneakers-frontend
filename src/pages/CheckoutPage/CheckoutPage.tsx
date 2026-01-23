@@ -1,7 +1,3 @@
-// ===========================================
-// PAGES - CHECKOUT PAGE (Refactored)
-// ===========================================
-
 import { useNavigate } from "react-router-dom";
 import { CreditCard } from "lucide-react";
 import { useCartStore, useCartSubtotal, useAuthStore } from "@/store";

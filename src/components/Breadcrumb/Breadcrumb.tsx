@@ -1,7 +1,3 @@
-// ===========================================
-// COMPONENTS - BREADCRUMB
-// ===========================================
-
 import { Link } from "react-router-dom";
 import styles from "./Breadcrumb.module.css";
 
