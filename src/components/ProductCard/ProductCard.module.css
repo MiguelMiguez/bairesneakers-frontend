@@ -173,7 +173,7 @@
   padding: 12px;
   background: #1a1a1a;
   color: #ffffff;
-  border: none;
+  border: 1px solid transparent;
   border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 600;
@@ -183,7 +183,9 @@
 }
 
 .viewButton:hover:not(:disabled) {
-  background: #333333;
+  background: #fff;
+  color: #1a1a1a;
+  border: 1px solid #1a1a1a;
 }
 
 .viewButton:disabled {
