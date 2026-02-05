@@ -86,7 +86,7 @@ export function ProductDetailPage() {
       try {
         await navigator.share({
           title: product.name,
-          text: `Mirá estas ${product.name} en SneakerSolid`,
+          text: `Mirá estas ${product.name} en BaireSnakers!`,
           url: window.location.href,
         });
       } catch {

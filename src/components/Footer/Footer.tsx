@@ -11,7 +11,7 @@ export function Footer() {
         <div className={styles.content}>
           {/* Brand */}
           <div className={styles.brand}>
-            <h3>Sneaker Solid</h3>
+            <h3>BaireSneakers</h3>
             <p>Tu tienda de sneakers favorita</p>
           </div>
 
@@ -30,7 +30,7 @@ export function Footer() {
             <h4>Contacto</h4>
             <p>
               <Mail size={14} />
-              info@sneakersolid.com
+              info@bairesnakers.com
             </p>
             <p>
               <Phone size={14} />
@@ -71,7 +71,7 @@ export function Footer() {
         </div>
 
         <div className={styles.bottom}>
-          <p>© {currentYear} Sneaker Solid. Todos los derechos reservados.</p>
+          <p>© {currentYear} BaireSneakers. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>
