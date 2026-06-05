@@ -186,7 +186,7 @@ function useProducts(options: UseProductsOptions = {}): UseProductsReturn {
 
 ### ▸ Zustand Store
 
-Estado global simple, performante y con persistencia:
+Estado global simple:
 
 ```typescript
 interface CartState {
